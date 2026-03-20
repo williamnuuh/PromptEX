@@ -375,18 +375,82 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 </head>
 <body>
 
-<!-- NAV -->
-<nav id="nav">
-  <a href="#" class="logo"><div class="logo-mark">P</div>PROMPTEX</a>
-  <div class="nav-links">
+<!-- LANDING PAGE -->
+<div id="landing" style="position:fixed;inset:0;z-index:2000;background:var(--bg0);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <div style="text-align:center;margin-bottom:56px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
+      <div class="logo-mark" style="width:48px;height:48px;border-radius:14px;font-size:22px">P</div>
+      <div style="font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:-1px">PROMPTEX</div>
+    </div>
+    <div style="font-size:15px;color:var(--t2);max-width:480px;line-height:1.7;margin:0 auto">The first decentralized exchange for AI compute tokens.<br>Trade, hedge, and redistribute API credits across providers.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:680px">
+
+    <!-- RETAIL CARD -->
+    <div onclick="enterMode('retail')" style="background:var(--bg2);border:1px solid var(--b2);border-radius:16px;padding:32px 28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='var(--gr)';this.style.background='var(--bg3)'" onmouseout="this.style.borderColor='var(--b2)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gr),var(--cy))"></div>
+      <div style="font-size:32px;margin-bottom:16px">👤</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:8px">Retail</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:20px">Trade AI tokens, provide liquidity, bridge assets, and redeem credits for your personal AI accounts.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t2);margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Spot trading &amp; token swaps</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Earn / LP pools</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Bridge &amp; deposit USDC</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Redeem tokens → AI credits</div>
+      </div>
+      <div style="width:100%;padding:11px;border-radius:9px;background:var(--gr2);color:#000;font-size:13px;font-weight:700;text-align:center">Enter Retail →</div>
+    </div>
+
+    <!-- ENTERPRISE CARD -->
+    <div onclick="enterMode('enterprise')" style="background:var(--bg2);border:1px solid var(--b2);border-radius:16px;padding:32px 28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='var(--am)';this.style.background='var(--bg3)'" onmouseout="this.style.borderColor='var(--b2)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--am),var(--re))"></div>
+      <div style="font-size:32px;margin-bottom:16px">🏢</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:8px">Enterprise</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:20px">Deposit company API tokens, list them on the marketplace, hedge contracts, and manage org-wide credit distribution.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t2);margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Deposit &amp; tokenize API credits</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> List tokens on marketplace</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Hedge with perp futures</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Encrypted cross-company routing</div>
+      </div>
+      <div style="width:100%;padding:11px;border-radius:9px;background:var(--am);color:#000;font-size:13px;font-weight:700;text-align:center">Enter Enterprise →</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;font-size:11px;color:var(--t3);text-align:center">
+    Built on Ethereum L1 · Smart contracts in development · <span style="color:var(--bl);cursor:pointer" onclick="enterMode('retail')">Preview UI</span>
+  </div>
+</div>
+
+<!-- NAV (hidden until mode chosen) -->
+<nav id="nav" style="display:none">
+  <a href="#" class="logo" onclick="goLanding(event)"><div class="logo-mark">P</div>PROMPTEX</a>
+
+  <!-- RETAIL NAV -->
+  <div class="nav-links" id="retailNav">
     <button class="nl act" onclick="showPage('trade',this)">Trade</button>
     <button class="nl" onclick="showPage('markets',this)">Markets</button>
     <button class="nl" onclick="showPage('portfolio',this)">Portfolio</button>
     <button class="nl" onclick="showPage('earn',this)">Earn / LP</button>
-    <button class="nl" onclick="showPage('bridge',this)">Bridge</button>
+    <button class="nl" onclick="showPage('bridge',this)" style="color:var(--pu)">Deposit, Withdraw, Utilize</button>
     <button class="nl" onclick="showPage('docs',this)">Docs</button>
-    <button class="nl" onclick="showPage('redeem',this)" style="color:var(--cy)">⟳ Redeem</button>
   </div>
+
+  <!-- ENTERPRISE NAV -->
+  <div class="nav-links" id="enterpriseNav" style="display:none">
+    <button class="nl act" onclick="showPage('trade',this)">Trade</button>
+    <button class="nl" onclick="showPage('markets',this)">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this)">Portfolio</button>
+    <button class="nl" onclick="showPage('docs',this)">Docs</button>
+    <button class="nl" onclick="showPage('enterprise',this)" style="color:var(--am)">Deposit, Withdraw, Utilize</button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:6px;margin-left:12px">
+    <div style="font-size:10px;color:var(--t3);font-family:var(--mono)" id="modeLabel">RETAIL</div>
+    <button onclick="goLanding(event)" style="padding:3px 8px;border-radius:5px;background:var(--bg3);border:1px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:var(--mono)">switch</button>
+  </div>
+
   <div class="hamburger" onclick="toggleMobileNav()" id="hamburger">
     <span></span><span></span><span></span>
   </div>
@@ -406,22 +470,33 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
       </div>
     </div>
     <button class="btn-o" id="testBtn" onclick="toggleTestnet(this)">Testnet</button>
-    <button class="btn-p" id="connBtn" onclick="openWallet()">Connect Wallet</button>
+    <button class="btn-p" id="connBtn" onclick="openWallet()">Connect Wallet / Sign In</button>
   </div>
 </nav>
 
 <!-- TICKER -->
-<div id="ticker"><div class="tick-wrap" id="tickWrap"></div></div>
+<div id="ticker" style="display:none"><div class="tick-wrap" id="tickWrap"></div></div>
 
 <!-- MOBILE NAV DRAWER -->
 <div id="mobileNav">
-  <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
-  <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
-  <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
-  <button class="nl" onclick="showPage('earn',this);closeMobileNav()">Earn / LP</button>
-  <button class="nl" onclick="showPage('bridge',this);closeMobileNav()">Bridge</button>
-  <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
-  <button class="nl" onclick="showPage('redeem',this);closeMobileNav()" style="color:var(--cy)">⟳ Redeem</button>
+  <div id="mobileRetailNav">
+    <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
+    <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
+    <button class="nl" onclick="showPage('earn',this);closeMobileNav()">Earn / LP</button>
+    <button class="nl" onclick="showPage('bridge',this);closeMobileNav()" style="color:var(--pu)">Deposit, Withdraw, Utilize</button>
+    <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
+  </div>
+  <div id="mobileEnterpriseNav" style="display:none">
+    <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
+    <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
+    <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
+    <button class="nl" onclick="showPage('enterprise',this);closeMobileNav()" style="color:var(--am)">Deposit, Withdraw, Utilize</button>
+  </div>
+  <div style="border-top:1px solid var(--b1);margin-top:6px;padding-top:6px">
+    <button class="nl" onclick="goLanding(event);closeMobileNav()" style="color:var(--t3);font-size:11px">← Switch Mode</button>
+  </div>
 </div>
 
 <!-- MOBILE TRADE MODAL (bottom sheet) -->
@@ -509,7 +584,7 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 </div>
 
 <!-- ══ TRADE PAGE ══ -->
-<div id="trade-page" style="display:grid;grid-template-columns:240px 1fr 320px;position:fixed;top:78px;bottom:26px;left:0;right:0;">
+<div id="trade-page" style="display:none;grid-template-columns:240px 1fr 320px;position:fixed;top:78px;bottom:26px;left:0;right:0;">
 
   <!-- SIDEBAR -->
   <div id="sb">
@@ -754,29 +829,103 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 
 <!-- ══ BRIDGE PAGE ══ -->
 <div id="bridge-page" class="page">
-  <div class="pg-inner" style="max-width:560px">
-    <div class="pg-title">Bridge Assets</div>
-    <div class="pg-sub">Deposit USDC, ETH, or SOL to start trading AI tokens</div>
-    <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-bottom:12px">
-      <div style="font-size:12px;font-weight:600;color:var(--t1);margin-bottom:16px;letter-spacing:.5px;text-transform:uppercase">Deposit Methods</div>
+  <div class="pg-inner" style="max-width:600px">
+    <div style="font-family:var(--mono);font-size:24px;font-weight:700;margin-bottom:4px">Deposit, Withdraw &amp; Utilize</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:20px">Fund your account, withdraw USDC, or use your tokens to prompt AI models through PROMPTEX's encrypted routing engine</div>
+
+    <!-- TAB ROW -->
+    <div style="display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px">
+      <button onclick="switchRetailTab('deposit',this)" data-tab="deposit" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:var(--bl2);color:#fff;transition:all .15s">Deposit</button>
+      <button onclick="switchRetailTab('withdraw',this)" data-tab="withdraw" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Withdraw</button>
+      <button onclick="switchRetailTab('utilize',this)" data-tab="utilize" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Utilize</button>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div id="retailTab-deposit" style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Deposit Funds</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Add USDC or crypto to your PROMPTEX wallet to start buying AI tokens and trading on the exchange.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
-        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:8px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('MetaMask deposit — coming soon on Ethereum & L2s','green')">
-          <div style="font-size:28px;margin-bottom:8px">🦊</div><div style="font-size:12px;font-weight:600">MetaMask</div><div style="font-size:10px;color:var(--t2);margin-top:3px">EVM direct</div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('MetaMask — coming soon on Ethereum & L2s','green')">
+          <div style="font-size:26px;margin-bottom:8px">🦊</div><div style="font-size:12px;font-weight:600">MetaMask</div><div style="font-size:10px;color:var(--t2);margin-top:3px">EVM direct deposit</div>
         </div>
-        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:8px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('WalletConnect deposit — coming soon','green')">
-          <div style="font-size:28px;margin-bottom:8px">🔗</div><div style="font-size:12px;font-weight:600">WalletConnect</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Any EVM wallet</div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('WalletConnect — coming soon','green')">
+          <div style="font-size:26px;margin-bottom:8px">🔗</div><div style="font-size:12px;font-weight:600">WalletConnect</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Any EVM wallet</div>
         </div>
-        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:8px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Phantom deposit — coming soon on Solana','green')">
-          <div style="font-size:28px;margin-bottom:8px">👻</div><div style="font-size:12px;font-weight:600">Phantom</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Solana native</div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Phantom — coming soon on Solana','green')">
+          <div style="font-size:26px;margin-bottom:8px">👻</div><div style="font-size:12px;font-weight:600">Phantom</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Solana native</div>
         </div>
-        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:8px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Coinbase Pay — buy crypto with card, coming soon','green')">
-          <div style="font-size:28px;margin-bottom:8px">💳</div><div style="font-size:12px;font-weight:600">Coinbase Pay</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Buy with card</div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Coinbase Pay — buy with card, coming soon','green')">
+          <div style="font-size:26px;margin-bottom:8px">💳</div><div style="font-size:12px;font-weight:600">Coinbase Pay</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Buy with card</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--t2);border-top:1px solid var(--b1);padding-top:12px;line-height:1.7">
-        PROMPTEX supports Ethereum L1, Arbitrum, Base, Optimism, Solana, Avalanche, and BNB Chain. More routes (CEX withdraw, Aster-style multi-chain) launching soon.
+      <div style="font-size:11px;color:var(--t2);border-top:1px solid var(--b1);padding-top:12px;line-height:1.7">Supports Ethereum L1, Arbitrum, Base, Optimism, Solana, Avalanche, and BNB Chain.</div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div id="retailTab-withdraw" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Withdraw USDC</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Withdraw your USDC balance to any connected wallet. <b style="color:var(--t1)">You cannot withdraw AI tokens directly</b> — tokens can be used via Utilize or sold on the exchange first.</div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:26px">💵</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Available USDC</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gr)">$248.79</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Amount <span class="fa" onclick="document.getElementById('retailWdAmt').value=248.79;calcRetailWd()">Max</span></div>
+        <div class="fw"><input class="fi" type="number" id="retailWdAmt" value="100" oninput="calcRetailWd()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">To wallet</div>
+        <div class="fw"><input class="fi" type="text" placeholder="0x… or connect wallet" style="padding:9px 12px;font-family:var(--mono);font-size:12px"></div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">You receive</span><span id="retailWdNet" style="color:var(--gr)">$100.00 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network gas</span><span>~$0.04</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Remaining</span><span id="retailWdRemain">$148.79</span></div>
+      </div>
+      <button onclick="showToast('Connect wallet to withdraw USDC','green')" style="width:100%;padding:13px;border-radius:10px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Withdraw →</button>
+    </div>
+
+    <!-- UTILIZE -->
+    <div id="retailTab-utilize" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Utilize — Prompt with Your Tokens</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:16px">Use the AI tokens in your portfolio to make real API calls — routed through other users who have deposited their API credits. <b style="color:var(--t1)">Their API key is never exposed to you.</b> PROMPTEX's encrypted routing engine proxies your prompt through their account and returns the response. You pay in tokens, they get compensated from the routing pool.</div>
+      <div class="fg">
+        <div class="fl" style="margin-bottom:6px">Token to use</div>
+        <select class="fsel" id="retailUtilToken">
+          <option>Claude (CLD) — 3,400,000 in portfolio</option>
+          <option>ChatGPT (GPT) — 4,200 in portfolio</option>
+          <option>Gemini (GEM) — 8,750 in portfolio</option>
+        </select>
+      </div>
+      <div class="fg">
+        <div class="fl" style="margin-bottom:6px">Your prompt</div>
+        <textarea style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:10px 12px;font-family:var(--sans);font-size:13px;outline:none;resize:vertical;min-height:100px;line-height:1.6;transition:border-color .15s" placeholder="Type your prompt…" id="retailPrompt" onfocus="this.style.borderColor='var(--b3)'" onblur="this.style.borderColor='var(--b2)'"></textarea>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Routing</span><span style="color:var(--pu)">Encrypted P2P engine</span></div>
+        <div class="osr"><span>Depositor's API key</span><span style="color:var(--gr)">Never revealed to you</span></div>
+        <div class="osr"><span>Est. cost</span><span>~240 CLD / 1K tokens</span></div>
+      </div>
+      <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:12px">
+        🏗️ <b style="color:var(--am)">Routing engine in development.</b> The encrypted proxy layer that routes prompts through depositors' API keys without exposing them is the core PROMPTEX infrastructure being built.
+      </div>
+      <button onclick="submitRetailUtilize(this)" class="sub-btn" style="background:var(--pu);color:#fff">Send via PROMPTEX →</button>
+      <div id="retailUtilResponse" style="display:none;margin-top:12px;background:var(--bg3);border:1px solid var(--b1);border-radius:9px;padding:12px">
+        <div style="font-size:10px;color:var(--t2);font-family:var(--mono);margin-bottom:7px;display:flex;justify-content:space-between">
+          <span>Response · P2P encrypted route</span><span style="color:var(--gr)">● Live</span>
+        </div>
+        <div style="font-size:12px;color:var(--t0);line-height:1.7" id="retailUtilText"></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--b1);font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;gap:14px">
+          <span>Cost: <span style="color:var(--t0)">312 CLD</span></span>
+          <span>Latency: <span style="color:var(--t0)">1.2s</span></span>
+          <span>Route: <span style="color:var(--pu)">encrypted</span></span>
+        </div>
       </div>
     </div>
+
   </div>
 </div>
 
@@ -900,6 +1049,215 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 </div>
 
 <!-- ══ DOCS PAGE ══ -->
+<!-- ══ ENTERPRISE PAGE ══ -->
+<div id="enterprise-page" class="page">
+  <div style="max-width:640px;margin:0 auto;padding:40px 24px 60px">
+
+    <!-- HEADER -->
+    <div style="margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(247,183,49,.12);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--am);letter-spacing:.5px;text-transform:uppercase">Enterprise Desk</div>
+        <div style="background:var(--gr3);border:1px solid var(--gr2);border-radius:8px;padding:4px 10px;font-size:10px;color:var(--gr);font-family:var(--mono)">● Agent Active</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:700;margin-bottom:6px">Deposit, Withdraw &amp; Utilize</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7">Lock your company's API credits into PROMPTEX. Trade them, hedge them, or list them for other users to buy.</div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div style="background:rgba(155,109,255,.07);border:1px solid rgba(155,109,255,.3);border-radius:12px;padding:20px 22px;margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="font-size:16px">🔒</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0)">How It Works</div>
+      </div>
+      <div style="font-size:13px;color:var(--t1);line-height:1.9;margin-bottom:14px">
+        Company B, locked into an OpenAI contract, can come to PROMPTEX and <b style="color:var(--t0)">silently use Company A's Claude tokens</b> — and neither Anthropic nor OpenAI can see the cross-company routing. Company A earns from the sale. Company B gets access to a provider they couldn't use directly.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🏢</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">Company A</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Has a $2M Anthropic contract. Deposits Claude tokens onto PROMPTEX. Lists them for sale. Earns yield on idle credits.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">⚡</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">PROMPTEX Routes</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Smart contracts handle the exchange. Encrypted intermediary routes API calls. Providers see a single account — not a marketplace.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🔑</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">Company B</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Locked into OpenAI on paper. Buys Claude tokens on PROMPTEX. Uses them privately. Neither provider sees the cross-routing.</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);font-style:italic;line-height:1.6">Note: Users should review their enterprise agreements. PROMPTEX routes usage through an encrypted intermediary — providers see normal API calls, not a redistribution platform.</div>
+    </div>
+
+    <!-- ORG BALANCE SUMMARY -->
+    <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:20px 24px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px">Org Vault</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">USDC Balance</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gr)">$284,120</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">CLD Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">142M</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">GPT Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">580K</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">GEM Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">78K</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREE TABS -->
+    <div style="display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px" id="entTabRow">
+      <button onclick="switchEntTab('deposit',this)" data-tab="deposit" class="ent-tab act" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:var(--bl2);color:#fff;transition:all .15s">Deposit</button>
+      <button onclick="switchEntTab('withdraw',this)" data-tab="withdraw" class="ent-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Withdraw</button>
+      <button onclick="switchEntTab('utilize',this)" data-tab="utilize" class="ent-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Utilize</button>
+    </div>
+
+    <!-- DEPOSIT TAB -->
+    <div id="entTab-deposit" style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Deposit Funds or API Credits</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Add USDC to your org vault, or convert your existing AI provider API credits into on-chain tokens. Deposited tokens can be traded, hedged, or listed on the PROMPTEX marketplace — <b style="color:var(--t1)">invisible to the provider.</b></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        <div onclick="setDepType('usdc')" id="depTypeUsdc" style="background:var(--bg3);border:2px solid var(--bl);border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all .15s">
+          <div style="font-size:22px;margin-bottom:6px">💵</div>
+          <div style="font-size:12px;font-weight:600">Deposit USDC</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:3px">Fund your vault to buy tokens or pay fees</div>
+        </div>
+        <div onclick="setDepType('credits')" id="depTypeCredits" style="background:var(--bg3);border:2px solid transparent;border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all .15s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="if(!this.classList.contains('dep-sel'))this.style.borderColor='transparent'">
+          <div style="font-size:22px;margin-bottom:6px">🔑</div>
+          <div style="font-size:12px;font-weight:600">Deposit API Credits</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:3px">Tokenize your existing Anthropic / OpenAI balance</div>
+        </div>
+      </div>
+
+      <div id="dep-usdc-form">
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">Amount</div>
+          <div class="fw"><input class="fi" type="number" value="50000" placeholder="USDC amount"><div class="fsfx">USDC</div></div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network</span><span id="depUsdcNet">Ethereum L1</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Gas est.</span><span>~$0.08</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Vault balance after</span><span style="color:var(--gr)">$334,120</span></div>
+        </div>
+        <button onclick="submitEntDeposit(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--bl2);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Deposit USDC →</button>
+      </div>
+
+      <div id="dep-credits-form" style="display:none">
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">Provider</div>
+          <select class="fsel" id="depProvider" onchange="updateDepEst()">
+            <option value="cld">Anthropic / Claude → CLD tokens ($0.004218 / token)</option>
+            <option value="gpt">OpenAI / ChatGPT → GPT tokens ($3.695 / token)</option>
+            <option value="gem">Google / Gemini → GEM tokens ($1.243 / token)</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">USD value of credits to tokenize</div>
+          <div class="fw"><input class="fi" type="number" id="depAmt" value="100000" oninput="updateDepEst()"><div class="fsfx">USD</div></div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Tokens minted 1:1</span><span id="depTokens" style="color:var(--gr)">23,703,450 CLD</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Mint fee</span><span>0.05%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Provider sees</span><span style="color:var(--pu)">Single API account (encrypted)</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Escrow contract</span><span style="color:var(--bl)">0x4f2a…b819</span></div>
+        </div>
+        <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+          🏗️ <b style="color:var(--am)">Infrastructure in development.</b> Credits are locked in an audited escrow contract and equivalent tokens are minted 1:1 to your org wallet.
+        </div>
+        <button onclick="submitEntDeposit(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--bl2);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Deposit &amp; Mint Tokens →</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW TAB (USDC only) -->
+    <div id="entTab-withdraw" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Withdraw USDC</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Withdraw your USDC balance directly to your connected crypto wallet. <b style="color:var(--t1)">Note: you cannot withdraw AI tokens</b> — tokens can only be utilized through the PROMPTEX routing engine or traded on the marketplace. USDC earned from token sales is freely withdrawable at any time.</div>
+
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">💵</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Available USDC Balance</div>
+          <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gr)">$284,120.00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--t2)">Wallet</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--bl)">Not connected</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Amount to withdraw <span class="fa" onclick="document.getElementById('wdUsdcAmt').value=284120;calcWdUsdc()">Max</span></div>
+        <div class="fw"><input class="fi" type="number" id="wdUsdcAmt" value="50000" oninput="calcWdUsdc()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Destination wallet</div>
+        <div class="fw"><input class="fi" type="text" placeholder="0x… or connect wallet" style="padding:9px 12px;font-family:var(--mono);font-size:12px"></div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">You receive</span><span id="wdUsdcNet" style="color:var(--gr)">$50,000.00 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network fee</span><span>~$0.08 gas</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Remaining balance</span><span id="wdUsdcRemain">$234,120.00</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Settlement</span><span>Ethereum L1 · ~12s</span></div>
+      </div>
+      <button onclick="submitUsdcWithdraw(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Withdraw USDC →</button>
+    </div>
+
+    <!-- UTILIZE TAB -->
+    <div id="entTab-utilize" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Utilize — Use Your PROMPTEX Credits</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Utilize means <b style="color:var(--t1)">actually using the AI tokens in your PROMPTEX portfolio to make real API calls.</b> When you prompt, PROMPTEX routes your request through its encrypted engine to the company that deposited those credits — your call goes out under their API key, but <b style="color:var(--t1)">neither you nor PROMPTEX can see or steal that key.</b> The routing layer is fully encrypted end-to-end. You just spend your tokens and get a response, as if you had the API access yourself.</div>
+
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Token to use</div>
+        <select class="fsel" id="wdToken" onchange="updateWdEst()">
+          <option value="cld">Claude (CLD) — 142,000,000 available in portfolio</option>
+          <option value="gpt">ChatGPT (GPT) — 580,000 available in portfolio</option>
+          <option value="gem">Gemini (GEM) — 78,000 available in portfolio</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Your prompt</div>
+        <textarea style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:10px 12px;font-family:var(--sans);font-size:13px;outline:none;resize:vertical;min-height:100px;line-height:1.6" placeholder="Enter your prompt here…" id="utilizePrompt"></textarea>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Routing</span><span style="color:var(--pu)">PROMPTEX encrypted engine</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">API key</span><span style="color:var(--gr)">Never exposed — end-to-end encrypted</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Est. token cost</span><span id="wdTokLbl">~240 CLD per 1K tokens</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Portfolio balance after</span><span id="wdUsdLbl" style="color:var(--t0)">141,999,760 CLD</span></div>
+      </div>
+      <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+        🏗️ <b style="color:var(--am)">Routing engine in development.</b> The encrypted proxy layer that routes your calls through depositors' API keys without exposing them is being built. This is the core technical piece of PROMPTEX infrastructure.
+      </div>
+      <button onclick="submitUtilize(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--pu);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Send via PROMPTEX Routing Engine →</button>
+
+      <div id="utilizeResponse" style="display:none;margin-top:16px;background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--t2);font-family:var(--mono);margin-bottom:8px;display:flex;justify-content:space-between">
+          <span>Response · routed via PROMPTEX · CLD</span>
+          <span style="color:var(--gr)">● Encrypted</span>
+        </div>
+        <div style="font-size:13px;color:var(--t0);line-height:1.7" id="utilizeResponseText"></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;gap:16px">
+          <span>Tokens used: <span style="color:var(--t0)">312 CLD</span></span>
+          <span>Latency: <span style="color:var(--t0)">1.4s</span></span>
+          <span>Route: <span style="color:var(--pu)">encrypted</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="docs-page" class="page">
   <div style="max-width:820px;margin:0 auto;padding:32px 32px 60px">
 
@@ -1496,6 +1854,34 @@ function toggleFaq(i){
   arrow.textContent=open?'+':'−';
 }
 
+// ── MODE / LANDING ──
+var currentMode = '';
+function enterMode(mode) {
+  currentMode = mode;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('nav').style.display = 'flex';
+  document.getElementById('ticker').style.display = 'flex';
+  document.getElementById('retailNav').style.display = mode === 'retail' ? 'flex' : 'none';
+  document.getElementById('enterpriseNav').style.display = mode === 'enterprise' ? 'flex' : 'none';
+  document.getElementById('mobileRetailNav').style.display = mode === 'retail' ? 'block' : 'none';
+  document.getElementById('mobileEnterpriseNav').style.display = mode === 'enterprise' ? 'block' : 'none';
+  document.getElementById('modeLabel').textContent = mode.toUpperCase();
+  document.getElementById('modeLabel').style.color = mode === 'enterprise' ? 'var(--am)' : 'var(--gr)';
+  // Show trade page by default
+  showPage('trade', document.querySelector('#' + mode + 'Nav .nl'));
+  buildTicker();
+  setTimeout(function(){if(theChart)theChart.resize();}, 100);
+}
+function goLanding(e) {
+  if(e) e.preventDefault();
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('ticker').style.display = 'none';
+  document.getElementById('trade-page').style.display = 'none';
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('act');});
+  closeMobileNav();
+}
+
 // ── PAGE NAV ──
 function showPage(page, btn) {
   document.getElementById('trade-page').style.display='none';
@@ -1504,7 +1890,7 @@ function showPage(page, btn) {
   if(btn) btn.classList.add('act');
   if(page==='trade'){
     document.getElementById('trade-page').style.display='grid';
-    setTimeout(function(){theChart.resize();},50);
+    setTimeout(function(){if(theChart)theChart.resize();},50);
   } else {
     var el=document.getElementById(page+'-page');
     if(el) el.classList.add('act');
@@ -1519,6 +1905,19 @@ function rpTab(tab, btn) {
   btn.classList.add('act');
   document.querySelectorAll('.rp-sec').forEach(function(s){s.classList.remove('act');});
   document.getElementById('sec-'+tab).classList.add('act');
+}
+function submitRetailUtilize(btn) {
+  var prompt = document.getElementById('retailPrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first','green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('retailUtilResponse');
+    var txt = document.getElementById('retailUtilText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'Simulated response via PROMPTEX P2P routing. Your prompt was forwarded through an encrypted proxy to another user\'s deposited API credits — their key was never visible to you or stored by PROMPTEX. Token cost deducted from your portfolio.';
+  }, 1400);
 }
 
 // ── NETWORK SWITCHER ──
@@ -1775,6 +2174,109 @@ function showToast(msg,type){
   t.textContent=msg;
   document.body.appendChild(t);
   setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},2800);
+}
+
+function switchRetailTab(tab, btn) {
+  document.querySelectorAll('.retail-tab').forEach(function(b) {
+    b.style.background = 'none';
+    b.style.color = 'var(--t2)';
+  });
+  if(tab==='deposit') { btn.style.background='var(--bl2)'; btn.style.color='#fff'; }
+  else if(tab==='withdraw') { btn.style.background='var(--gr2)'; btn.style.color='#000'; }
+  else if(tab==='utilize') { btn.style.background='var(--pu)'; btn.style.color='#fff'; }
+  ['deposit','withdraw','utilize'].forEach(function(t) {
+    var el = document.getElementById('retailTab-' + t);
+    if(el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+function calcRetailWd() {
+  var amt = parseFloat(document.getElementById('retailWdAmt').value) || 0;
+  var net = document.getElementById('retailWdNet');
+  var rem = document.getElementById('retailWdRemain');
+  if(net) net.textContent = '$' + amt.toFixed(2) + ' USDC';
+  if(rem) rem.textContent = '$' + Math.max(0, 248.79 - amt).toFixed(2);
+}
+function submitRetailUtilize(btn) {
+  var prompt = document.getElementById('retailPrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first', 'green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('retailUtilResponse');
+    var txt = document.getElementById('retailUtilText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'Simulated response via PROMPTEX P2P routing. Your prompt was forwarded through an encrypted proxy to another user\'s deposited API credits — their key was never visible to you or stored by PROMPTEX. Token cost deducted from your portfolio.';
+  }, 1400);
+}
+
+// ── ENTERPRISE ──
+function switchEntTab(tab, btn) {
+  document.querySelectorAll('.ent-tab').forEach(function(b) {
+    var t = b.getAttribute('data-tab');
+    if (t === 'deposit') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+    else if (t === 'withdraw') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+    else if (t === 'utilize') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+  });
+  if (tab === 'deposit') { btn.style.background = 'var(--bl2)'; btn.style.color = '#fff'; }
+  else if (tab === 'withdraw') { btn.style.background = 'var(--gr2)'; btn.style.color = '#000'; }
+  else if (tab === 'utilize') { btn.style.background = 'var(--am)'; btn.style.color = '#000'; }
+  var tabs = ['deposit','withdraw','utilize'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('entTab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+function setDepType(type) {
+  var ud = document.getElementById('depTypeUsdc');
+  var cd = document.getElementById('depTypeCredits');
+  var uf = document.getElementById('dep-usdc-form');
+  var cf = document.getElementById('dep-credits-form');
+  if (ud) ud.style.borderColor = type === 'usdc' ? 'var(--bl)' : 'transparent';
+  if (cd) cd.style.borderColor = type === 'credits' ? 'var(--bl)' : 'transparent';
+  if (uf) uf.style.display = type === 'usdc' ? 'block' : 'none';
+  if (cf) cf.style.display = type === 'credits' ? 'block' : 'none';
+}
+function calcWdUsdc() {
+  var inp = document.getElementById('wdUsdcAmt');
+  var amt = inp ? (parseFloat(inp.value) || 0) : 0;
+  var net = document.getElementById('wdUsdcNet');
+  var rem = document.getElementById('wdUsdcRemain');
+  if (net) net.textContent = '$' + amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) + ' USDC';
+  if (rem) rem.textContent = '$' + Math.max(0, 284120 - amt).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function submitUtilize(btn) {
+  var prompt = document.getElementById('utilizePrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first','green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing through encrypted layer…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('utilizeResponse');
+    var txt = document.getElementById('utilizeResponseText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'This is a simulated response routed through the PROMPTEX encrypted engine. In production, your prompt is forwarded to the depositor\'s API key via an encrypted proxy — the key is never revealed to you or stored by PROMPTEX. You receive the model\'s response directly. Token cost is deducted from your portfolio balance.';
+  }, 1600);
+}
+function submitUsdcWithdraw(btn) {
+  var orig = btn.textContent;
+  btn.textContent = 'Connecting wallet…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = '✓ Withdrawal Initiated';
+    btn.style.background = 'var(--gr)'; btn.style.opacity = '';
+    showToast('USDC withdrawal sent to connected wallet', 'green');
+    setTimeout(function() { btn.textContent = orig; btn.style.background = 'var(--gr2)'; }, 2000);
+  }, 1200);
+}
+function submitEntDeposit(btn) {
+  var orig = btn.textContent;
+  btn.textContent = 'Authorizing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = '✓ Deposit Complete';
+    btn.style.background = 'var(--gr2)'; btn.style.color = '#000'; btn.style.opacity = '';
+    showToast('Deposit complete — tokens visible in org vault', 'green');
+    setTimeout(function() { btn.textContent = orig; btn.style.background = 'var(--bl2)'; btn.style.color = '#fff'; }, 2000);
+  }, 1200);
 }
 
 // ── MOBILE NAV ──
