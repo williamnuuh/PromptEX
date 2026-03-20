@@ -275,6 +275,102 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 .pool-card:hover{border-color:var(--b3)}
 .mkt-card{background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s}
 .mkt-card:hover{border-color:var(--b3)}
+/* ── RESPONSIVE ── */
+
+/* Hamburger menu button (hidden on desktop) */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;border:none;background:none;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .2s}
+
+/* Mobile nav drawer */
+#mobileNav{display:none;position:fixed;top:48px;left:0;right:0;background:var(--bg1);border-bottom:1px solid var(--b1);z-index:480;padding:8px 12px;flex-direction:column;gap:2px}
+#mobileNav.open{display:flex}
+#mobileNav .nl{text-align:left;padding:10px 12px;border-radius:8px;font-size:14px}
+
+@media(max-width:1100px){
+  /* Collapse sidebar on tablet */
+  #app{grid-template-columns:0px 1fr 300px}
+  #sb{display:none}
+}
+
+@media(max-width:860px){
+  /* Hide right panel, show as bottom sheet tabs */
+  #app{grid-template-columns:1fr;grid-template-rows:1fr}
+  #sb{display:none}
+  #rp{display:none}
+  #center{grid-column:1}
+  /* Tighter pair header */
+  #ph{height:auto;padding:8px 12px;flex-wrap:wrap;gap:8px}
+  .ph-dv{display:none}
+  .ph-st{margin-right:12px}
+  .ph-px{font-size:16px}
+  /* Bottom panels stack */
+  #bp{height:auto;grid-template-columns:1fr;max-height:220px}
+  .bps:not(:first-child){display:none}
+  /* Trade panel as floating bottom bar */
+  #tradeBar{display:flex}
+}
+
+@media(max-width:860px){
+  /* Nav: hide links, show hamburger */
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-r .btn-o{display:none}
+  /* Chain pill shorter */
+  #chainPill span:last-child{display:none}
+}
+
+@media(max-width:600px){
+  /* Full mobile */
+  #app{top:78px;bottom:56px}
+  #chartarea{min-height:200px}
+  #cb{overflow-x:auto;gap:0}
+  #cb::-webkit-scrollbar{height:0}
+  #bp{display:none}
+  #ph{gap:6px;padding:6px 10px}
+  .ph-st:nth-child(n+5){display:none}
+  /* Pages */
+  .pg-inner{padding:16px}
+  .pg-title{font-size:18px}
+  /* Portfolio stats grid */
+  #portfolio-page .stat-card{padding:12px}
+  /* Docs grid */
+  #docs-page [style*="grid-template-columns:1fr 1fr"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(3"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(5"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(4"]{display:block!important}
+  /* Redeem how-it-works arrows */
+  #redeem-page [style*="grid-template-columns:1fr auto 1fr auto"]{display:flex!important;flex-wrap:wrap;justify-content:center}
+}
+
+/* Mobile bottom trade bar */
+#tradeBar{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:400;
+  background:var(--bg1);border-top:1px solid var(--b1);
+  height:56px;align-items:center;justify-content:space-around;
+  padding:0 12px;gap:8px;
+}
+.tb-btn{
+  flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;font-family:var(--sans);text-align:center;
+}
+.tb-buy{background:var(--gr2);color:#000}
+.tb-sell{background:var(--re2);color:#fff}
+.tb-swap{background:var(--bg4);color:var(--cy);border:1px solid var(--b2)}
+
+/* Mobile trade modal */
+#mobileTradeModal{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;
+  background:var(--bg1);border-top:1px solid var(--b2);
+  border-radius:16px 16px 0 0;max-height:85vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(0,0,0,.6);
+}
+#mobileTradeModal.open{display:block}
+.mt-handle{width:40px;height:4px;background:var(--b2);border-radius:2px;margin:12px auto 0}
+.mt-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--b1)}
+.mt-tabs{display:flex;border-bottom:1px solid var(--b1)}
+.mt-tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent}
+.mt-tab.act{color:var(--t0);border-bottom-color:var(--gr)}
 </style>
 </head>
 <body>
@@ -290,6 +386,9 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
     <button class="nl" onclick="showPage('bridge',this)">Bridge</button>
     <button class="nl" onclick="showPage('docs',this)">Docs</button>
     <button class="nl" onclick="showPage('redeem',this)" style="color:var(--cy)">⟳ Redeem</button>
+  </div>
+  <div class="hamburger" onclick="toggleMobileNav()" id="hamburger">
+    <span></span><span></span><span></span>
   </div>
   <div class="nav-r">
     <div style="position:relative">
@@ -313,6 +412,101 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 
 <!-- TICKER -->
 <div id="ticker"><div class="tick-wrap" id="tickWrap"></div></div>
+
+<!-- MOBILE NAV DRAWER -->
+<div id="mobileNav">
+  <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
+  <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
+  <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
+  <button class="nl" onclick="showPage('earn',this);closeMobileNav()">Earn / LP</button>
+  <button class="nl" onclick="showPage('bridge',this);closeMobileNav()">Bridge</button>
+  <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
+  <button class="nl" onclick="showPage('redeem',this);closeMobileNav()" style="color:var(--cy)">⟳ Redeem</button>
+</div>
+
+<!-- MOBILE TRADE MODAL (bottom sheet) -->
+<div id="mobileTradeModal">
+  <div class="mt-handle"></div>
+  <div class="mt-header">
+    <div style="font-size:13px;font-weight:600">CLD / USDC</div>
+    <button onclick="closeMobileTrade()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px;line-height:1">×</button>
+  </div>
+  <div class="mt-tabs">
+    <button class="mt-tab act" onclick="mtTab('spot',this)">Spot</button>
+    <button class="mt-tab" onclick="mtTab('swap',this)">Swap</button>
+    <button class="mt-tab" onclick="mtTab('perp',this)">Perps</button>
+  </div>
+  <div style="padding:14px">
+    <div id="mt-spot">
+      <div class="bs-grid">
+        <button class="bsb buy act" id="mbuyBtn" onclick="setMSide('buy')">Buy CLD</button>
+        <button class="bsb sell" id="msellBtn" onclick="setMSide('sell')">Sell CLD</button>
+      </div>
+      <div class="fg"><div class="fl">Amount</div>
+        <div class="fw"><input class="fi" type="number" id="mAmt" value="10000" oninput="updateMSum()"><div class="fsfx">CLD</div></div>
+      </div>
+      <div class="pct-r">
+        <div class="pct-b" onclick="setMPct(25)">25%</div>
+        <div class="pct-b" onclick="setMPct(50)">50%</div>
+        <div class="pct-b" onclick="setMPct(75)">75%</div>
+        <div class="pct-b" onclick="setMPct(100)">Max</div>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Est. Total</span><span id="mTotal">$42.18 USDC</span></div>
+        <div class="osr"><span>Network Fee</span><span>~$0.04</span></div>
+        <div class="osr"><span>Protocol Fee</span><span>0.10%</span></div>
+      </div>
+      <button class="sub-btn sub-buy" id="mSpotBtn" onclick="submitMSpot()">Buy CLD</button>
+    </div>
+    <div id="mt-swap" style="display:none">
+      <div class="notice">Swap AI tokens at market rates via PromptAMM v2. Route: GPT → USDC → CLD.</div>
+      <div class="swap-box" style="margin-bottom:6px">
+        <div class="swap-hdr"><span>You send</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="swap-tok"><div class="swap-ti i-gpt">GP</div><span class="swap-tn">GPT</span></div>
+          <input class="swap-amt" type="number" placeholder="0.0" value="10" id="mSwpFrom" oninput="calcMSwap()" style="text-align:right;flex:1">
+        </div>
+      </div>
+      <div class="swap-flip">⇅</div>
+      <div class="swap-box" style="margin-top:6px;margin-bottom:10px">
+        <div class="swap-hdr"><span>You receive</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="swap-tok"><div class="swap-ti i-cld">CL</div><span class="swap-tn">CLD</span></div>
+          <div style="flex:1;text-align:right;font-family:var(--mono);font-size:18px;color:var(--t0)" id="mSwpTo">8,746</div>
+        </div>
+      </div>
+      <button class="sub-btn" style="background:var(--pu);color:#fff" onclick="this.textContent='✓ Swapped';setTimeout(()=>this.textContent='Swap Tokens',1500)">Swap Tokens</button>
+    </div>
+    <div id="mt-perp" style="display:none">
+      <div class="notice">Open a leveraged position to hedge your AI compute spend.</div>
+      <div class="bs-grid">
+        <button class="bsb buy act" id="mlongBtn" onclick="setMDir('long')">Long ↑</button>
+        <button class="bsb sell" id="mshortBtn" onclick="setMDir('short')">Short ↓</button>
+      </div>
+      <div class="fg"><div class="fl">Collateral</div>
+        <div class="fw"><input class="fi" type="number" value="500" id="mPCol" oninput="updMPerp()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div class="lev-wr">
+        <span class="lev-l">Leverage</span>
+        <input type="range" min="1" max="20" value="5" id="mLevSlider" oninput="updMPerp()">
+        <span class="lev-v" id="mLevVal">5×</span>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Position Size</span><span id="mPosSz">$2,500</span></div>
+        <div class="osr"><span>Liq. Price</span><span class="dn">$0.003380</span></div>
+        <div class="osr"><span>Funding/8h</span><span class="up">+0.012%</span></div>
+      </div>
+      <button class="sub-btn sub-buy" id="mPerpBtn" onclick="submitMPerp(this)">Open Long · 5×</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM TRADE BAR -->
+<div id="tradeBar">
+  <button class="tb-btn tb-buy" onclick="openMobileTrade('buy')">Buy</button>
+  <button class="tb-btn tb-swap" onclick="openMobileTrade('swap')">Swap</button>
+  <button class="tb-btn tb-sell" onclick="openMobileTrade('sell')">Sell</button>
+</div>
 
 <!-- ══ TRADE PAGE ══ -->
 <div id="trade-page" style="display:grid;grid-template-columns:240px 1fr 320px;position:fixed;top:78px;bottom:26px;left:0;right:0;">
@@ -553,7 +747,7 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
 <div id="earn-page" class="page">
   <div class="pg-inner">
     <div class="pg-title">Earn / Liquidity</div>
-    <div class="pg-sub">Provide liquidity to PromptAMM v2 pools and earn trading fees + $PRMPT rewards</div>
+    <div class="pg-sub">Provide liquidity to PromptAMM v2 pools and earn trading fees</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px" id="earnCards"></div>
   </div>
 </div>
@@ -900,7 +1094,7 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
             <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t2);flex-shrink:0;z-index:1">4</div>
             <div style="padding-top:4px">
               <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 4 — Enterprise &amp; Multi-chain <span style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-left:8px">Q1 2026</span></div>
-              <div style="font-size:12px;color:var(--t2);line-height:1.7">OAuth2 org-level API key delegation, multi-seat enterprise redemption, Aster-style cross-chain deposits (Solana, Base, Arbitrum, Avalanche), $PRMPT governance token launch, DAO treasury.</div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">OAuth2 org-level API key delegation, multi-seat enterprise redemption, Aster-style cross-chain deposits (Solana, Base, Arbitrum, Avalanche), expanded provider integrations and enterprise billing tools.</div>
             </div>
           </div>
 
@@ -929,7 +1123,7 @@ input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
       <div style="font-size:14px;color:var(--t2);margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto">PROMPTEX is currently in UI preview. Smart contracts and live trading launching soon. Join the waitlist to get early access.</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:10px">
         <button onclick="showPage('trade',document.querySelector('.nl'))" style="padding:12px 28px;border-radius:9px;background:var(--gr2);border:none;color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">Explore the Exchange →</button>
-        <button onclick="showToast('Waitlist coming soon — follow @promptex on X for updates','green')" style="padding:12px 24px;border-radius:9px;background:transparent;border:1px solid var(--b2);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans)">Join Waitlist</button>
+        <button onclick="showToast('Waitlist coming soon — follow @PromptExchang3 on X for updates','green')" style="padding:12px 24px;border-radius:9px;background:transparent;border:1px solid var(--b2);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans)">Join Waitlist</button>
       </div>
     </div>
 
@@ -1279,7 +1473,7 @@ var FAQS=[
   {q:"Won't OpenAI / Anthropic just shut this down?",a:"PROMPTEX does not require cooperation from AI providers. The Redemption Agent uses normal API billing calls — providers see a customer buying credits, nothing more. The exchange layer is entirely separate. That said, enterprise API agreements may have terms around resale; users should review their contracts."},
   {q:'What stops someone from manipulating the token price?',a:'The same mechanisms that prevent it in any liquid market: deep order books, decentralized liquidity provision, and on-chain transparency. As volume grows, manipulation becomes prohibitively expensive. Oracle price feeds (Chainlink + Pyth) also anchor prices to observable real-world rates.'},
   {q:'How does the hedge actually work for an enterprise?',a:'Example: Your company has a $1M/yr OpenAI contract. You open a $1M short on GPT perpetuals at 1x leverage. If OpenAI raises prices 20%, your contract costs $200K more — but your short profits $200K, netting to zero. You have capped your AI cost at today\'s rate, just like an airline hedging jet fuel.'},
-  {q:'What is $PRMPT?',a:'$PRMPT is the planned governance token for the PROMPTEX protocol. Holders vote on fee parameters, new token listings, and treasury allocation. It also entitles holders to a share of protocol trading fees. Launch planned for Phase 4.'},
+  {q:'Is PROMPTEX audited and secure?',a:'Smart contract audits are planned before any mainnet launch. All contracts will be open-source and verified on Etherscan. The Redemption Agent operates with strictly scoped permissions — it can only trigger credit purchases on your linked AI account, nothing else.'},
 ];
 function buildFaq(){
   var el=document.getElementById('faqList');
@@ -1319,6 +1513,13 @@ function showPage(page, btn) {
 }
 
 function setTf(el){document.querySelectorAll('.tf').forEach(function(b){b.classList.remove('act');});el.classList.add('act');}
+
+function rpTab(tab, btn) {
+  document.querySelectorAll('.rpt').forEach(function(b){b.classList.remove('act');});
+  btn.classList.add('act');
+  document.querySelectorAll('.rp-sec').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('sec-'+tab).classList.add('act');
+}
 
 // ── NETWORK SWITCHER ──
 function buildNetModal(){
@@ -1576,12 +1777,99 @@ function showToast(msg,type){
   setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},2800);
 }
 
-// close net dropdown when clicking outside
+// ── MOBILE NAV ──
+function toggleMobileNav(){
+  var nav=document.getElementById('mobileNav');
+  nav.classList.toggle('open');
+}
+function closeMobileNav(){
+  document.getElementById('mobileNav').classList.remove('open');
+}
+
+// ── MOBILE TRADE MODAL ──
+var mSide='buy';
+var mDir='long';
+function openMobileTrade(action){
+  var modal=document.getElementById('mobileTradeModal');
+  modal.classList.add('open');
+  if(action==='swap'){
+    mtTab('swap', document.querySelectorAll('.mt-tab')[1]);
+  } else if(action==='sell'){
+    mtTab('spot', document.querySelectorAll('.mt-tab')[0]);
+    setMSide('sell');
+  } else {
+    mtTab('spot', document.querySelectorAll('.mt-tab')[0]);
+    setMSide('buy');
+  }
+}
+function closeMobileTrade(){
+  document.getElementById('mobileTradeModal').classList.remove('open');
+}
+function mtTab(tab, btn){
+  document.querySelectorAll('.mt-tab').forEach(function(b){b.classList.remove('act');});
+  btn.classList.add('act');
+  document.getElementById('mt-spot').style.display = tab==='spot'?'block':'none';
+  document.getElementById('mt-swap').style.display = tab==='swap'?'block':'none';
+  document.getElementById('mt-perp').style.display = tab==='perp'?'block':'none';
+}
+function setMSide(s){
+  mSide=s;
+  document.getElementById('mbuyBtn').className='bsb buy'+(s==='buy'?' act':'');
+  document.getElementById('msellBtn').className='bsb sell'+(s==='sell'?' act':'');
+  var btn=document.getElementById('mSpotBtn');
+  btn.className='sub-btn '+(s==='buy'?'sub-buy':'sub-sell');
+  btn.textContent=(s==='buy'?'Buy':'Sell')+' CLD';
+  updateMSum();
+}
+function setMPct(p){ document.getElementById('mAmt').value=Math.floor(50000*p/100); updateMSum(); }
+function updateMSum(){
+  var amt=parseFloat(document.getElementById('mAmt').value)||0;
+  document.getElementById('mTotal').textContent='$'+(amt*0.004218).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+' USDC';
+}
+function submitMSpot(){
+  var btn=document.getElementById('mSpotBtn');
+  var orig=btn.textContent;
+  btn.textContent='Signing…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Order Submitted';btn.style.opacity='';
+  setTimeout(function(){btn.textContent=orig;closeMobileTrade();},1200);},900);
+}
+function calcMSwap(){
+  var v=parseFloat(document.getElementById('mSwpFrom').value)||0;
+  document.getElementById('mSwpTo').textContent=Math.round(v*874.6).toLocaleString();
+}
+function setMDir(d){
+  mDir=d;
+  document.getElementById('mlongBtn').className='bsb buy'+(d==='long'?' act':'');
+  document.getElementById('mshortBtn').className='bsb sell'+(d==='short'?' act':'');
+  updMPerp();
+}
+function updMPerp(){
+  var lev=parseInt(document.getElementById('mLevSlider').value);
+  var col=parseFloat(document.getElementById('mPCol').value)||0;
+  document.getElementById('mLevVal').textContent=lev+'×';
+  document.getElementById('mPosSz').textContent='$'+(col*lev).toLocaleString();
+  var btn=document.getElementById('mPerpBtn');
+  btn.textContent=(mDir==='long'?'Open Long · ':'Open Short · ')+lev+'×';
+  btn.className='sub-btn '+(mDir==='long'?'sub-buy':'sub-sell');
+}
+function submitMPerp(btn){
+  var orig=btn.textContent;
+  btn.textContent='Opening…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Position Opened';btn.style.opacity='';
+  setTimeout(function(){btn.textContent=orig;closeMobileTrade();},1200);},900);
+}
+
+// close mobile nav when clicking outside
 document.addEventListener('click',function(e){
-  var dd=document.getElementById('net-dd');
+  var nav=document.getElementById('mobileNav');
+  var ham=document.getElementById('hamburger');
+  if(nav&&nav.classList.contains('open')&&!nav.contains(e.target)&&!ham.contains(e.target)){
+    nav.classList.remove('open');
+  }
+  var netdd=document.getElementById('net-dd');
   var pill=document.getElementById('chainPill');
-  if(dd&&!dd.contains(e.target)&&!pill.contains(e.target)){
-    dd.classList.remove('open');
+  if(netdd&&!netdd.contains(e.target)&&pill&&!pill.contains(e.target)){
+    netdd.classList.remove('open');
   }
 });
 </script>
