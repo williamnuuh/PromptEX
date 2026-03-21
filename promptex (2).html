@@ -1,0 +1,2379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PROMPTEX — AI Token Exchange</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#07080c;--bg1:#0d0f17;--bg2:#12151f;--bg3:#181c28;--bg4:#1e2333;--bg5:#252b3b;
+  --b1:#232840;--b2:#2d3452;--b3:#3a4265;
+  --t0:#eef0f8;--t1:#9aa3c2;--t2:#5a6385;--t3:#363d57;
+  --gr:#05d394;--gr2:#04a873;--gr3:#033d2b;
+  --re:#f0455a;--re2:#c0354a;--re3:#3d1520;
+  --bl:#3d8bff;--bl2:#2060cc;--bl3:#112244;
+  --am:#f7b731;--pu:#9b6dff;--cy:#22d3ee;
+  --mono:'Space Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t0);font-family:var(--sans);font-size:13px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;z-index:500;height:48px;background:var(--bg1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 20px;gap:0}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:16px;font-weight:700;color:var(--t0);letter-spacing:-1px;margin-right:28px;text-decoration:none}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--gr),var(--cy));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nl{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;font-family:var(--sans);transition:all .15s;white-space:nowrap}
+.nl:hover{color:var(--t1);background:var(--bg3)}
+.nl.act{color:var(--t0);background:var(--bg3)}
+.nav-r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.chain-pill{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;border:1px solid var(--b2);background:var(--bg2);font-family:var(--mono);font-size:11px;color:var(--t1);cursor:pointer;transition:all .15s;position:relative}
+.chain-pill:hover{border-color:var(--b3);background:var(--bg3)}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-o{padding:6px 14px;border-radius:8px;border:1px solid var(--b2);background:transparent;color:var(--t1);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-o:hover{border-color:var(--b3);color:var(--t0)}
+.btn-p{padding:6px 16px;border-radius:8px;background:var(--gr2);border:none;color:#000;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn-p:hover{background:var(--gr)}
+
+/* TICKER */
+#ticker{position:fixed;top:48px;left:0;right:0;z-index:490;height:30px;background:var(--bg2);border-bottom:1px solid var(--b1);display:flex;align-items:center;overflow:hidden}
+.tick-wrap{display:flex;animation:tickscroll 55s linear infinite;white-space:nowrap}
+.ti{display:flex;align-items:center;gap:7px;padding:0 22px;border-right:1px solid var(--b1);font-family:var(--mono);font-size:11px;height:30px;cursor:pointer}
+.ti:hover{background:var(--bg3)}
+.ts{color:var(--t1);font-weight:700;font-size:10px}.tp{color:var(--t0)}
+.up{color:var(--gr)}.dn{color:var(--re)}
+@keyframes tickscroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* LAYOUT */
+#app{display:grid;grid-template-columns:240px 1fr 320px;position:fixed;top:78px;bottom:26px;left:0;right:0}
+
+/* SIDEBAR */
+#sb{background:var(--bg1);border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.sb-search{padding:10px 12px;border-bottom:1px solid var(--b1)}
+.sb-inp{width:100%;background:var(--bg3);border:1px solid var(--b1);border-radius:7px;padding:7px 10px;color:var(--t0);font-size:12px;font-family:var(--sans);outline:none;transition:border-color .15s}
+.sb-inp:focus{border-color:var(--b3)}
+.sb-inp::placeholder{color:var(--t3)}
+.sb-tabs{display:flex;border-bottom:1px solid var(--b1)}
+.sbt{flex:1;padding:7px;text-align:center;font-size:11px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s}
+.sbt:hover{color:var(--t1)}.sbt.act{color:var(--t0);border-bottom-color:var(--bl)}
+.sb-hdr{display:grid;grid-template-columns:1fr auto auto;padding:5px 12px;font-size:10px;color:var(--t3);font-family:var(--mono);border-bottom:1px solid var(--b1)}
+.sb-hdr span:not(:first-child){text-align:right}
+.mkt-list{overflow-y:auto;flex:1}
+.mr{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;padding:7px 12px;cursor:pointer;transition:background .1s;border-left:2px solid transparent}
+.mr:hover{background:var(--bg3)}
+.mr.sel{background:var(--bg3);border-left-color:var(--bl)}
+.mi{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+.i-cld{background:#1c1018;color:#d4825a;border:1px solid #d4825a33}
+.i-gpt{background:#0a180e;color:#05d394;border:1px solid #05d39433}
+.i-gem{background:#10132a;color:#7eb8ff;border:1px solid #7eb8ff33}
+.i-llm{background:#1a1500;color:#f7b731;border:1px solid #f7b73133}
+.i-mst{background:#1a0f16;color:#e090b4;border:1px solid #e090b433}
+.i-pxl{background:#0d1a1c;color:#22d3ee;border:1px solid #22d3ee33}
+.i-coh{background:#13181a;color:#8ad4ee;border:1px solid #8ad4ee33}
+.i-per{background:#19100d;color:#ff8c5a;border:1px solid #ff8c5a33}
+.mn{font-size:12px;font-weight:500;color:var(--t0)}.mp{font-size:10px;color:var(--t2);font-family:var(--mono)}
+.mr-r{text-align:right}.mrp{font-size:12px;font-family:var(--mono)}.mrc{font-size:10px;font-family:var(--mono);margin-top:1px}
+
+/* CENTER */
+#center{display:flex;flex-direction:column;overflow:hidden;background:var(--bg0)}
+#ph{display:flex;align-items:center;height:56px;background:var(--bg1);border-bottom:1px solid var(--b1);padding:0 16px;gap:0;flex-shrink:0;overflow-x:auto}
+#ph::-webkit-scrollbar{height:0}
+.ph-pr{display:flex;align-items:center;gap:10px;margin-right:20px;flex-shrink:0}
+.ph-ic{display:flex;position:relative;width:44px;flex-shrink:0}
+.pico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono)}
+.pico:nth-child(2){position:absolute;left:14px;border:2px solid var(--bg1)}
+.ph-nm{font-family:var(--mono);font-size:16px;font-weight:700;white-space:nowrap}
+.ph-fl{font-size:11px;color:var(--t2);margin-top:1px;white-space:nowrap}
+.ph-dv{width:1px;background:var(--b1);height:36px;margin:0 20px;flex-shrink:0}
+.ph-st{flex-shrink:0;margin-right:24px}
+.ph-sv{font-family:var(--mono);font-size:13px;font-weight:700;white-space:nowrap}
+.ph-sl{font-size:10px;color:var(--t2);margin-top:2px;white-space:nowrap}
+.ph-px{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gr);white-space:nowrap}
+.ph-pc{font-family:var(--mono);font-size:12px;margin-top:2px}
+
+/* CHART BAR */
+#cb{display:flex;align-items:center;height:34px;border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);background:var(--bg1);padding:0 12px;flex-shrink:0}
+.tf{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;font-family:var(--mono);color:var(--t2);cursor:pointer;border:none;background:none;transition:all .15s}
+.tf:hover{color:var(--t1);background:var(--bg3)}.tf.act{color:var(--t0);background:var(--bg4)}
+.cb-sep{width:1px;background:var(--b1);height:20px;margin:0 8px}
+.ind-btn{margin-left:auto;padding:4px 10px;border-radius:5px;font-size:11px;color:var(--t2);cursor:pointer;border:1px solid var(--b1);background:none;font-family:var(--sans);transition:all .15s}
+.ind-btn:hover{border-color:var(--b2);color:var(--t1)}
+#chartarea{flex:1;min-height:0;position:relative;background:var(--bg0)}
+#chartarea canvas{position:absolute;inset:0;width:100%!important;height:100%!important}
+
+/* BOTTOM PANELS */
+#bp{height:200px;display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--b1);flex-shrink:0;background:var(--bg1)}
+.bps{border-right:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.bps:last-child{border-right:none}
+.bph{display:flex;align-items:center;height:32px;border-bottom:1px solid var(--b1);padding:0 12px;flex-shrink:0}
+.bpt{font-size:11px;font-weight:600;color:var(--t1);letter-spacing:.3px;flex:1}
+.bpb{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:10px;background:var(--bg4);color:var(--t2)}
+.bpc{overflow-y:auto;flex:1;padding:4px 0}
+.ob-c{display:grid;grid-template-columns:1fr 1fr 1fr;padding:3px 10px;font-size:10px;color:var(--t2);font-family:var(--mono)}
+.ob-c span:not(:first-child){text-align:right}
+.obr{display:grid;grid-template-columns:1fr 1fr 1fr;padding:2px 10px;font-family:var(--mono);font-size:11px;position:relative;cursor:pointer}
+.obr:hover{filter:brightness(1.2)}
+.obr span:not(:first-child){text-align:right;z-index:1;position:relative}
+.obr span:first-child{z-index:1;position:relative}
+.obf{position:absolute;top:0;bottom:0;right:0;opacity:.13;border-radius:2px 0 0 2px}
+.ask .obf{background:var(--re)}.bid .obf{background:var(--gr)}
+.ask span:first-child{color:var(--re)}.bid span:first-child{color:var(--gr)}
+.ob-mid{display:flex;justify-content:center;align-items:center;gap:8px;padding:4px 10px;border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gr);background:var(--bg2)}
+.tc{display:grid;grid-template-columns:1fr 1fr 1fr;padding:3px 10px;font-size:10px;color:var(--t2);font-family:var(--mono)}
+.tc span:not(:first-child){text-align:right}
+.tr{display:grid;grid-template-columns:1fr 1fr 1fr;padding:2.5px 10px;font-family:var(--mono);font-size:11px}
+.tr span:not(:first-child){text-align:right;color:var(--t1)}
+.pr{display:grid;grid-template-columns:80px 55px 65px 65px 70px 65px;padding:4px 10px;font-family:var(--mono);font-size:11px;border-bottom:1px solid var(--b1)}
+.prh{display:grid;grid-template-columns:80px 55px 65px 65px 70px 65px;padding:3px 10px;font-size:10px;color:var(--t2);font-family:var(--mono)}
+.pb{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px}
+.pl{background:var(--gr3);color:var(--gr)}.ps{background:var(--re3);color:var(--re)}.ph2{background:var(--bl3);color:var(--bl)}
+.cl-btn{padding:3px 10px;border-radius:4px;border:1px solid var(--b2);background:none;color:var(--t2);font-size:10px;cursor:pointer;font-family:var(--sans);transition:all .1s}
+.cl-btn:hover{border-color:var(--re);color:var(--re)}
+
+/* RIGHT PANEL */
+#rp{background:var(--bg1);border-left:1px solid var(--b1);display:flex;flex-direction:column;overflow:hidden}
+.rp-tabs{display:flex;border-bottom:1px solid var(--b1);flex-shrink:0}
+.rpt{flex:1;padding:10px 6px;text-align:center;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent;transition:all .15s}
+.rpt:hover{color:var(--t1)}.rpt.act{color:var(--t0);border-bottom-color:var(--gr)}
+.rp-body{overflow-y:auto;flex:1}
+.rp-sec{padding:14px;display:none}
+.rp-sec.act{display:block}
+.bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--bg3);padding:3px;border-radius:10px;margin-bottom:14px}
+.bsb{padding:8px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--t2);font-family:var(--sans);transition:all .15s}
+.bsb.buy.act{background:var(--gr2);color:#000}.bsb.sell.act{background:var(--re2);color:#fff}
+.bsb:hover:not(.act){color:var(--t0)}
+.fg{margin-bottom:10px}
+.fl{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:5px}
+.fa{color:var(--bl);cursor:pointer}.fa:hover{color:var(--cy)}
+.fw{position:relative}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:9px 50px 9px 12px;font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s;-moz-appearance:textfield}
+.fi::-webkit-outer-spin-button,.fi::-webkit-inner-spin-button{-webkit-appearance:none}
+.fi:focus{border-color:var(--b3)}
+.fsfx{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--t2);font-family:var(--mono);pointer-events:none}
+.fsel{width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:9px 12px;font-family:var(--sans);font-size:13px;outline:none;cursor:pointer;appearance:none;transition:border-color .15s}
+.fsel:focus{border-color:var(--b3)}
+.pct-r{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:10px}
+.pct-b{padding:5px;text-align:center;font-size:11px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--b1);border-radius:5px;cursor:pointer;color:var(--t1);transition:all .1s}
+.pct-b:hover{border-color:var(--bl);color:var(--bl)}
+.osum{background:var(--bg2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.osr{display:flex;justify-content:space-between;padding:2.5px 0;font-family:var(--mono);font-size:11px}
+.osr span:first-child{color:var(--t2)}
+.sub-btn{width:100%;padding:13px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s;letter-spacing:.3px}
+.sub-buy{background:var(--gr2);color:#000}.sub-buy:hover{background:var(--gr)}
+.sub-sell{background:var(--re2);color:#fff}.sub-sell:hover{background:var(--re)}
+.swap-box{background:var(--bg2);border:1px solid var(--b2);border-radius:10px;padding:12px}
+.swap-hdr{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:10px}
+.swap-tok{display:flex;align-items:center;gap:8px;background:var(--bg4);border:1px solid var(--b2);border-radius:20px;padding:5px 12px;cursor:pointer;transition:border-color .15s}
+.swap-tok:hover{border-color:var(--b3)}
+.swap-ti{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:var(--mono);flex-shrink:0}
+.swap-tn{font-size:13px;font-weight:600;font-family:var(--mono)}
+.swap-amt{width:100%;background:none;border:none;font-size:24px;font-weight:500;font-family:var(--mono);color:var(--t0);outline:none;margin-top:10px;-moz-appearance:textfield}
+.swap-amt::-webkit-outer-spin-button,.swap-amt::-webkit-inner-spin-button{-webkit-appearance:none}
+.swap-amt::placeholder{color:var(--t3)}
+.swap-usd{font-size:11px;color:var(--t2);font-family:var(--mono);margin-top:4px}
+.swap-flip{width:34px;height:34px;border-radius:9px;background:var(--bg3);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;cursor:pointer;margin:-2px auto;position:relative;z-index:1;font-size:15px;color:var(--t1);transition:all .15s}
+.swap-flip:hover{border-color:var(--gr);color:var(--gr)}
+.swap-rt{background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:10px;margin:10px 0;font-family:var(--mono);font-size:11px}
+.srr{display:flex;justify-content:space-between;padding:2px 0}
+.srr span:first-child{color:var(--t2)}
+.lev-wr{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;margin-bottom:10px}
+.lev-l{font-size:11px;color:var(--t2);font-family:var(--mono)}
+.lev-v{font-size:14px;font-weight:700;color:var(--am);font-family:var(--mono);min-width:32px;text-align:right}
+input[type=range]{flex:1;accent-color:var(--am);cursor:pointer;height:4px}
+.info-r{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--b1);border-radius:7px;padding:8px 12px;margin-bottom:8px}
+.ii{text-align:center;flex:1}
+.iv{font-family:var(--mono);font-size:12px;font-weight:600}
+.il{font-size:10px;color:var(--t2);margin-top:2px}
+.isep{width:1px;height:28px;background:var(--b1)}
+.notice{background:rgba(61,139,255,.06);border:1px solid rgba(61,139,255,.2);border-radius:7px;padding:9px 11px;font-size:11px;color:var(--t1);line-height:1.5;margin-bottom:10px}
+.divider{border:none;border-top:1px solid var(--b1);margin:12px 0}
+
+/* PAGES */
+.page{display:none;position:fixed;top:78px;bottom:26px;left:0;right:0;overflow-y:auto;background:var(--bg0)}
+.page.act{display:block}
+.pg-inner{padding:24px 32px;max-width:960px;margin:0 auto}
+.pg-title{font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:4px}
+.pg-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+
+/* STATS BAR */
+#sbar{position:fixed;bottom:0;left:0;right:0;height:26px;background:var(--bg1);border-top:1px solid var(--b1);display:flex;align-items:center;padding:0 16px;gap:24px;font-family:var(--mono);font-size:10px;color:var(--t2);z-index:500}
+.sbi{display:flex;align-items:center;gap:6px}
+.sbv{color:var(--t1)}
+.sbsep{width:1px;height:14px;background:var(--b1)}
+.slive{margin-left:auto;display:flex;align-items:center;gap:5px;color:var(--gr)}
+
+/* MODALS */
+.modal-bg{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.75);backdrop-filter:blur(3px)}
+.modal-bg.open{display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg2);border:1px solid var(--b2);border-radius:16px;overflow:hidden;box-shadow:0 32px 64px rgba(0,0,0,.7);width:420px;max-height:88vh;overflow-y:auto}
+.modal-hdr{padding:18px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
+.modal-title{font-size:15px;font-weight:700}
+.modal-sub{font-size:11px;color:var(--t2);margin-top:2px}
+.modal-x{background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px;line-height:1;padding:0}
+.modal-body{padding:16px 20px}
+
+/* NETWORK DROPDOWN */
+#net-dd{display:none;position:absolute;top:44px;right:0;width:340px;background:var(--bg2);border:1px solid var(--b2);border-radius:14px;box-shadow:0 24px 48px rgba(0,0,0,.7);z-index:600;overflow:hidden}
+#net-dd.open{display:block}
+.net-sec-lbl{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:10px 12px 6px}
+.nr{display:flex;align-items:center;gap:12px;padding:9px 12px;cursor:pointer;transition:background .1s}
+.nr:hover{background:var(--bg4)}.nr.anr{background:var(--bg4);border-left:2px solid var(--bl)}
+.ni{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.nn{font-size:13px;font-weight:500}.ns{font-size:10px;color:var(--t2);margin-top:1px;font-family:var(--mono)}
+.nbg{margin-left:auto;font-size:10px;padding:2px 8px;border-radius:10px;font-family:var(--mono)}
+.nb-live{background:var(--gr3);color:var(--gr)}.nb-on{background:var(--bl3);color:var(--bl)}.nb-soon{background:var(--bg5);color:var(--t2)}
+.net-footer{padding:10px 12px;border-top:1px solid var(--b1);background:var(--bg3);font-size:11px;color:var(--t2);line-height:1.5}
+
+/* WALLET MODAL */
+.w-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px}
+.wc{background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s;text-align:center}
+.wc:hover{border-color:var(--b3);background:var(--bg4)}
+.wi{font-size:28px;margin-bottom:8px}.wn{font-size:12px;font-weight:600}.wsub{font-size:10px;color:var(--t2);margin-top:3px}
+.w-conn{display:none;padding:20px;text-align:center}
+.w-conn-icon{font-size:36px;margin-bottom:10px}.w-conn-name{font-size:13px;font-weight:600;margin-bottom:6px}
+.w-conn-sub{font-size:12px;color:var(--t2)}
+.wbar{margin-top:14px;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.wbar-fill{height:100%;background:var(--gr);border-radius:2px;animation:wbl 1.4s ease-in-out infinite}
+@keyframes wbl{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
+.w-foot{padding:0 14px 14px}
+.w-tos{background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6}
+
+/* AI LINK */
+.ai-card{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg3);border:1px solid var(--b1);border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+.ai-card:hover{border-color:var(--b3)}
+.ai-card.linked{border-color:rgba(5,211,148,.3)}
+.aic-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.aic-n{font-size:13px;font-weight:600}.aic-s{font-size:11px;color:var(--t2);margin-top:2px}
+.aic-b{margin-left:auto;font-size:10px;padding:3px 9px;border-radius:10px;white-space:nowrap}
+.lb-linked{background:var(--gr3);color:var(--gr)}.lb-link{background:var(--bl3);color:var(--bl);border:1px solid rgba(61,139,255,.3)}
+
+/* TOAST */
+.toast{position:fixed;bottom:40px;right:20px;z-index:9999;background:var(--bg3);border:1px solid rgba(5,211,148,.3);border-left:3px solid var(--gr);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--t0);box-shadow:0 8px 24px rgba(0,0,0,.4);transition:opacity .3s;max-width:300px;pointer-events:none}
+
+/* REDEEM */
+.flow-step{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.flow-step:last-child{border-bottom:none}
+.fnum{width:22px;height:22px;border-radius:50%;background:var(--bg5);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);color:var(--t1);flex-shrink:0;margin-top:1px}
+.fnum.done{background:var(--gr3);border-color:var(--gr2);color:var(--gr)}
+.fnum.run{background:var(--bl3);border-color:var(--bl2);color:var(--bl);animation:fnpulse 1.5s infinite}
+@keyframes fnpulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ftxt{font-size:12px;color:var(--t1);line-height:1.5}
+.ftxt b{color:var(--t0);font-weight:600}
+
+/* CARDS */
+.stat-card{background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:16px}
+.sc-lbl{font-size:11px;color:var(--t2);margin-bottom:6px}
+.sc-val{font-family:var(--mono);font-size:22px;font-weight:700}
+.sc-chg{font-size:12px;margin-top:4px}
+.pool-card{background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:18px;transition:border-color .15s}
+.pool-card:hover{border-color:var(--b3)}
+.mkt-card{background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s}
+.mkt-card:hover{border-color:var(--b3)}
+/* ── RESPONSIVE ── */
+
+/* Hamburger menu button (hidden on desktop) */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;border:none;background:none;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--t1);border-radius:2px;transition:all .2s}
+
+/* Mobile nav drawer */
+#mobileNav{display:none;position:fixed;top:48px;left:0;right:0;background:var(--bg1);border-bottom:1px solid var(--b1);z-index:480;padding:8px 12px;flex-direction:column;gap:2px}
+#mobileNav.open{display:flex}
+#mobileNav .nl{text-align:left;padding:10px 12px;border-radius:8px;font-size:14px}
+
+@media(max-width:1100px){
+  /* Collapse sidebar on tablet */
+  #app{grid-template-columns:0px 1fr 300px}
+  #sb{display:none}
+}
+
+@media(max-width:860px){
+  /* Hide right panel, show as bottom sheet tabs */
+  #app{grid-template-columns:1fr;grid-template-rows:1fr}
+  #sb{display:none}
+  #rp{display:none}
+  #center{grid-column:1}
+  /* Tighter pair header */
+  #ph{height:auto;padding:8px 12px;flex-wrap:wrap;gap:8px}
+  .ph-dv{display:none}
+  .ph-st{margin-right:12px}
+  .ph-px{font-size:16px}
+  /* Bottom panels stack */
+  #bp{height:auto;grid-template-columns:1fr;max-height:220px}
+  .bps:not(:first-child){display:none}
+  /* Trade panel as floating bottom bar */
+  #tradeBar{display:flex}
+}
+
+@media(max-width:860px){
+  /* Nav: hide links, show hamburger */
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .nav-r .btn-o{display:none}
+  /* Chain pill shorter */
+  #chainPill span:last-child{display:none}
+}
+
+@media(max-width:600px){
+  /* Full mobile */
+  #app{top:78px;bottom:56px}
+  #chartarea{min-height:200px}
+  #cb{overflow-x:auto;gap:0}
+  #cb::-webkit-scrollbar{height:0}
+  #bp{display:none}
+  #ph{gap:6px;padding:6px 10px}
+  .ph-st:nth-child(n+5){display:none}
+  /* Pages */
+  .pg-inner{padding:16px}
+  .pg-title{font-size:18px}
+  /* Portfolio stats grid */
+  #portfolio-page .stat-card{padding:12px}
+  /* Docs grid */
+  #docs-page [style*="grid-template-columns:1fr 1fr"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(3"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(5"]{display:block!important}
+  #docs-page [style*="grid-template-columns:repeat(4"]{display:block!important}
+  /* Redeem how-it-works arrows */
+  #redeem-page [style*="grid-template-columns:1fr auto 1fr auto"]{display:flex!important;flex-wrap:wrap;justify-content:center}
+}
+
+/* Mobile bottom trade bar */
+#tradeBar{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:400;
+  background:var(--bg1);border-top:1px solid var(--b1);
+  height:56px;align-items:center;justify-content:space-around;
+  padding:0 12px;gap:8px;
+}
+.tb-btn{
+  flex:1;padding:9px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;font-family:var(--sans);text-align:center;
+}
+.tb-buy{background:var(--gr2);color:#000}
+.tb-sell{background:var(--re2);color:#fff}
+.tb-swap{background:var(--bg4);color:var(--cy);border:1px solid var(--b2)}
+
+/* Mobile trade modal */
+#mobileTradeModal{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:600;
+  background:var(--bg1);border-top:1px solid var(--b2);
+  border-radius:16px 16px 0 0;max-height:85vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(0,0,0,.6);
+}
+#mobileTradeModal.open{display:block}
+.mt-handle{width:40px;height:4px;background:var(--b2);border-radius:2px;margin:12px auto 0}
+.mt-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--b1)}
+.mt-tabs{display:flex;border-bottom:1px solid var(--b1)}
+.mt-tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:500;color:var(--t2);cursor:pointer;border:none;background:none;font-family:var(--sans);border-bottom:2px solid transparent}
+.mt-tab.act{color:var(--t0);border-bottom-color:var(--gr)}
+</style>
+</head>
+<body>
+
+<!-- LANDING PAGE -->
+<div id="landing" style="position:fixed;inset:0;z-index:2000;background:var(--bg0);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+  <div style="text-align:center;margin-bottom:56px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
+      <div class="logo-mark" style="width:48px;height:48px;border-radius:14px;font-size:22px">P</div>
+      <div style="font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:-1px">PROMPTEX</div>
+    </div>
+    <div style="font-size:15px;color:var(--t2);max-width:480px;line-height:1.7;margin:0 auto">The first decentralized exchange for AI compute tokens.<br>Trade, hedge, and redistribute API credits across providers.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:680px">
+
+    <!-- RETAIL CARD -->
+    <div onclick="enterMode('retail')" style="background:var(--bg2);border:1px solid var(--b2);border-radius:16px;padding:32px 28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='var(--gr)';this.style.background='var(--bg3)'" onmouseout="this.style.borderColor='var(--b2)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gr),var(--cy))"></div>
+      <div style="font-size:32px;margin-bottom:16px">👤</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:8px">Retail</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:20px">Trade AI tokens, provide liquidity, bridge assets, and redeem credits for your personal AI accounts.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t2);margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Spot trading &amp; token swaps</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Earn / LP pools</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Bridge &amp; deposit USDC</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--gr)">✓</span> Redeem tokens → AI credits</div>
+      </div>
+      <div style="width:100%;padding:11px;border-radius:9px;background:var(--gr2);color:#000;font-size:13px;font-weight:700;text-align:center">Enter Retail →</div>
+    </div>
+
+    <!-- ENTERPRISE CARD -->
+    <div onclick="enterMode('enterprise')" style="background:var(--bg2);border:1px solid var(--b2);border-radius:16px;padding:32px 28px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden" onmouseover="this.style.borderColor='var(--am)';this.style.background='var(--bg3)'" onmouseout="this.style.borderColor='var(--b2)';this.style.background='var(--bg2)'">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--am),var(--re))"></div>
+      <div style="font-size:32px;margin-bottom:16px">🏢</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:8px">Enterprise</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:20px">Deposit company API tokens, list them on the marketplace, hedge contracts, and manage org-wide credit distribution.</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:11px;color:var(--t2);margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Deposit &amp; tokenize API credits</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> List tokens on marketplace</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Hedge with perp futures</div>
+        <div style="display:flex;align-items:center;gap:7px"><span style="color:var(--am)">✓</span> Encrypted cross-company routing</div>
+      </div>
+      <div style="width:100%;padding:11px;border-radius:9px;background:var(--am);color:#000;font-size:13px;font-weight:700;text-align:center">Enter Enterprise →</div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;font-size:11px;color:var(--t3);text-align:center">
+    Built on Ethereum L1 · Smart contracts in development · <span style="color:var(--bl);cursor:pointer" onclick="enterMode('retail')">Preview UI</span>
+  </div>
+</div>
+
+<!-- NAV (hidden until mode chosen) -->
+<nav id="nav" style="display:none">
+  <a href="#" class="logo" onclick="goLanding(event)"><div class="logo-mark">P</div>PROMPTEX</a>
+
+  <!-- RETAIL NAV -->
+  <div class="nav-links" id="retailNav">
+    <button class="nl act" onclick="showPage('trade',this)">Trade</button>
+    <button class="nl" onclick="showPage('markets',this)">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this)">Portfolio</button>
+    <button class="nl" onclick="showPage('earn',this)">Earn / LP</button>
+    <button class="nl" onclick="showPage('bridge',this)" style="color:var(--pu)">Deposit, Withdraw, Utilize</button>
+    <button class="nl" onclick="showPage('docs',this)">Docs</button>
+  </div>
+
+  <!-- ENTERPRISE NAV -->
+  <div class="nav-links" id="enterpriseNav" style="display:none">
+    <button class="nl act" onclick="showPage('trade',this)">Trade</button>
+    <button class="nl" onclick="showPage('markets',this)">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this)">Portfolio</button>
+    <button class="nl" onclick="showPage('docs',this)">Docs</button>
+    <button class="nl" onclick="showPage('enterprise',this)" style="color:var(--am)">Deposit, Withdraw, Utilize</button>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:6px;margin-left:12px">
+    <div style="font-size:10px;color:var(--t3);font-family:var(--mono)" id="modeLabel">RETAIL</div>
+    <button onclick="goLanding(event)" style="padding:3px 8px;border-radius:5px;background:var(--bg3);border:1px solid var(--b1);color:var(--t2);font-size:10px;cursor:pointer;font-family:var(--mono)">switch</button>
+  </div>
+
+  <div class="hamburger" onclick="toggleMobileNav()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="nav-r">
+    <div style="position:relative">
+      <div class="chain-pill" id="chainPill" onclick="toggleNetDD()">
+        <div class="cdot" id="chainDot"></div>
+        <span id="chainName">Ethereum L1</span>
+        <span style="font-size:9px;color:var(--t2);margin-left:2px">▾</span>
+      </div>
+      <div id="net-dd">
+        <div class="net-sec-lbl">Layer 1 Networks</div>
+        <div id="netL1"></div>
+        <div class="net-sec-lbl">Layer 2 / Rollups</div>
+        <div id="netL2"></div>
+        <div class="net-footer">All networks share the same PROMPTEX liquidity layer. Fees and finality vary by chain.</div>
+      </div>
+    </div>
+    <button class="btn-o" id="testBtn" onclick="toggleTestnet(this)">Testnet</button>
+    <button class="btn-p" id="connBtn" onclick="openWallet()">Connect Wallet / Sign In</button>
+  </div>
+</nav>
+
+<!-- TICKER -->
+<div id="ticker" style="display:none"><div class="tick-wrap" id="tickWrap"></div></div>
+
+<!-- MOBILE NAV DRAWER -->
+<div id="mobileNav">
+  <div id="mobileRetailNav">
+    <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
+    <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
+    <button class="nl" onclick="showPage('earn',this);closeMobileNav()">Earn / LP</button>
+    <button class="nl" onclick="showPage('bridge',this);closeMobileNav()" style="color:var(--pu)">Deposit, Withdraw, Utilize</button>
+    <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
+  </div>
+  <div id="mobileEnterpriseNav" style="display:none">
+    <button class="nl" onclick="showPage('trade',this);closeMobileNav()">Trade</button>
+    <button class="nl" onclick="showPage('markets',this);closeMobileNav()">Markets</button>
+    <button class="nl" onclick="showPage('portfolio',this);closeMobileNav()">Portfolio</button>
+    <button class="nl" onclick="showPage('docs',this);closeMobileNav()">Docs</button>
+    <button class="nl" onclick="showPage('enterprise',this);closeMobileNav()" style="color:var(--am)">Deposit, Withdraw, Utilize</button>
+  </div>
+  <div style="border-top:1px solid var(--b1);margin-top:6px;padding-top:6px">
+    <button class="nl" onclick="goLanding(event);closeMobileNav()" style="color:var(--t3);font-size:11px">← Switch Mode</button>
+  </div>
+</div>
+
+<!-- MOBILE TRADE MODAL (bottom sheet) -->
+<div id="mobileTradeModal">
+  <div class="mt-handle"></div>
+  <div class="mt-header">
+    <div style="font-size:13px;font-weight:600">CLD / USDC</div>
+    <button onclick="closeMobileTrade()" style="background:none;border:none;color:var(--t2);cursor:pointer;font-size:20px;line-height:1">×</button>
+  </div>
+  <div class="mt-tabs">
+    <button class="mt-tab act" onclick="mtTab('spot',this)">Spot</button>
+    <button class="mt-tab" onclick="mtTab('swap',this)">Swap</button>
+    <button class="mt-tab" onclick="mtTab('perp',this)">Perps</button>
+  </div>
+  <div style="padding:14px">
+    <div id="mt-spot">
+      <div class="bs-grid">
+        <button class="bsb buy act" id="mbuyBtn" onclick="setMSide('buy')">Buy CLD</button>
+        <button class="bsb sell" id="msellBtn" onclick="setMSide('sell')">Sell CLD</button>
+      </div>
+      <div class="fg"><div class="fl">Amount</div>
+        <div class="fw"><input class="fi" type="number" id="mAmt" value="10000" oninput="updateMSum()"><div class="fsfx">CLD</div></div>
+      </div>
+      <div class="pct-r">
+        <div class="pct-b" onclick="setMPct(25)">25%</div>
+        <div class="pct-b" onclick="setMPct(50)">50%</div>
+        <div class="pct-b" onclick="setMPct(75)">75%</div>
+        <div class="pct-b" onclick="setMPct(100)">Max</div>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Est. Total</span><span id="mTotal">$42.18 USDC</span></div>
+        <div class="osr"><span>Network Fee</span><span>~$0.04</span></div>
+        <div class="osr"><span>Protocol Fee</span><span>0.10%</span></div>
+      </div>
+      <button class="sub-btn sub-buy" id="mSpotBtn" onclick="submitMSpot()">Buy CLD</button>
+    </div>
+    <div id="mt-swap" style="display:none">
+      <div class="notice">Swap AI tokens at market rates via PromptAMM v2. Route: GPT → USDC → CLD.</div>
+      <div class="swap-box" style="margin-bottom:6px">
+        <div class="swap-hdr"><span>You send</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="swap-tok"><div class="swap-ti i-gpt">GP</div><span class="swap-tn">GPT</span></div>
+          <input class="swap-amt" type="number" placeholder="0.0" value="10" id="mSwpFrom" oninput="calcMSwap()" style="text-align:right;flex:1">
+        </div>
+      </div>
+      <div class="swap-flip">⇅</div>
+      <div class="swap-box" style="margin-top:6px;margin-bottom:10px">
+        <div class="swap-hdr"><span>You receive</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="swap-tok"><div class="swap-ti i-cld">CL</div><span class="swap-tn">CLD</span></div>
+          <div style="flex:1;text-align:right;font-family:var(--mono);font-size:18px;color:var(--t0)" id="mSwpTo">8,746</div>
+        </div>
+      </div>
+      <button class="sub-btn" style="background:var(--pu);color:#fff" onclick="this.textContent='✓ Swapped';setTimeout(()=>this.textContent='Swap Tokens',1500)">Swap Tokens</button>
+    </div>
+    <div id="mt-perp" style="display:none">
+      <div class="notice">Open a leveraged position to hedge your AI compute spend.</div>
+      <div class="bs-grid">
+        <button class="bsb buy act" id="mlongBtn" onclick="setMDir('long')">Long ↑</button>
+        <button class="bsb sell" id="mshortBtn" onclick="setMDir('short')">Short ↓</button>
+      </div>
+      <div class="fg"><div class="fl">Collateral</div>
+        <div class="fw"><input class="fi" type="number" value="500" id="mPCol" oninput="updMPerp()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div class="lev-wr">
+        <span class="lev-l">Leverage</span>
+        <input type="range" min="1" max="20" value="5" id="mLevSlider" oninput="updMPerp()">
+        <span class="lev-v" id="mLevVal">5×</span>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Position Size</span><span id="mPosSz">$2,500</span></div>
+        <div class="osr"><span>Liq. Price</span><span class="dn">$0.003380</span></div>
+        <div class="osr"><span>Funding/8h</span><span class="up">+0.012%</span></div>
+      </div>
+      <button class="sub-btn sub-buy" id="mPerpBtn" onclick="submitMPerp(this)">Open Long · 5×</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM TRADE BAR -->
+<div id="tradeBar">
+  <button class="tb-btn tb-buy" onclick="openMobileTrade('buy')">Buy</button>
+  <button class="tb-btn tb-swap" onclick="openMobileTrade('swap')">Swap</button>
+  <button class="tb-btn tb-sell" onclick="openMobileTrade('sell')">Sell</button>
+</div>
+
+<!-- ══ TRADE PAGE ══ -->
+<div id="trade-page" style="display:none;grid-template-columns:240px 1fr 320px;position:fixed;top:78px;bottom:26px;left:0;right:0;">
+
+  <!-- SIDEBAR -->
+  <div id="sb">
+    <div class="sb-search"><input class="sb-inp" type="text" placeholder="Search markets…" oninput="filterMkts(this.value)"></div>
+    <div class="sb-tabs">
+      <button class="sbt act" onclick="sbTab(this)">All</button>
+      <button class="sbt" onclick="sbTab(this)">Spot</button>
+      <button class="sbt" onclick="sbTab(this)">Perps</button>
+      <button class="sbt" onclick="sbTab(this)">★ Fav</button>
+    </div>
+    <div class="sb-hdr"><span>Market</span><span>Price</span><span>24h</span></div>
+    <div class="mkt-list" id="mktList"></div>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+    <div id="ph">
+      <div class="ph-pr">
+        <div class="ph-ic">
+          <div class="pico i-cld">CL</div>
+          <div class="pico" style="background:#0a1520;color:#4d8eff;border:1px solid #1a3060;font-size:9px;font-weight:700">UC</div>
+        </div>
+        <div><div class="ph-nm">CLD / USDC</div><div class="ph-fl">Claude Compute Token</div></div>
+      </div>
+      <div class="ph-dv"></div>
+      <div class="ph-st" style="margin-right:0"><div class="ph-px up" id="phPrice">$0.004218</div><div class="ph-pc up">▲ +2.34%</div></div>
+      <div class="ph-dv"></div>
+      <div class="ph-st"><div class="ph-sv">$0.004391</div><div class="ph-sl">24h High</div></div>
+      <div class="ph-st"><div class="ph-sv">$0.003976</div><div class="ph-sl">24h Low</div></div>
+      <div class="ph-st"><div class="ph-sv">$2.14M</div><div class="ph-sl">24h Vol</div></div>
+      <div class="ph-st"><div class="ph-sv">$847K</div><div class="ph-sl">Open Interest</div></div>
+      <div class="ph-st"><div class="ph-sv up">+0.012%</div><div class="ph-sl">Funding/8h</div></div>
+      <div class="ph-st"><div class="ph-sv">$14.2M</div><div class="ph-sl">Market Cap</div></div>
+      <div class="ph-st"><div class="ph-sv">4.7B CLD</div><div class="ph-sl">Circulating</div></div>
+    </div>
+    <div id="cb">
+      <button class="tf act" onclick="setTf(this)">1m</button>
+      <button class="tf" onclick="setTf(this)">5m</button>
+      <button class="tf" onclick="setTf(this)">15m</button>
+      <button class="tf" onclick="setTf(this)">1h</button>
+      <button class="tf" onclick="setTf(this)">4h</button>
+      <button class="tf" onclick="setTf(this)">1D</button>
+      <button class="tf" onclick="setTf(this)">1W</button>
+      <div class="cb-sep"></div>
+      <button class="tf act" onclick="setTf(this)">Candles</button>
+      <button class="tf" onclick="setTf(this)">Line</button>
+      <button class="ind-btn">+ Indicators</button>
+    </div>
+    <div id="chartarea"><canvas id="priceChart"></canvas></div>
+    <div id="bp">
+      <div class="bps">
+        <div class="bph"><span class="bpt">Order Book</span><span class="bpb">14 levels</span></div>
+        <div class="bpc">
+          <div class="ob-c"><span>Price</span><span>Size (CLD)</span><span>Total</span></div>
+          <div id="askRows"></div>
+          <div class="ob-mid"><span id="obMid">$0.004218</span><span style="font-size:10px;color:var(--t2);font-weight:400">Spread 0.98%</span></div>
+          <div id="bidRows"></div>
+        </div>
+      </div>
+      <div class="bps">
+        <div class="bph"><span class="bpt">Recent Trades</span><span class="bpb" style="color:var(--gr)">Live</span></div>
+        <div class="bpc">
+          <div class="tc"><span>Price</span><span>Size</span><span>Time</span></div>
+          <div id="tradeRows"></div>
+        </div>
+      </div>
+      <div class="bps">
+        <div class="bph"><span class="bpt">Open Positions</span><span class="bpb">2 active</span></div>
+        <div class="bpc">
+          <div class="prh"><span>Pair</span><span>Dir</span><span>Size</span><span>Entry</span><span>uPnL</span><span></span></div>
+          <div class="pr"><span><span class="pb ph2">HEDGE</span> CLD</span><span class="dn">Short</span><span>$10K</span><span>0.004105</span><span class="dn">-$27.52</span><span><button class="cl-btn">Close</button></span></div>
+          <div class="pr"><span><span class="pb pl">LONG</span> GPT</span><span class="up">Long</span><span>$3K</span><span>3.642</span><span class="up">+$43.70</span><span><button class="cl-btn">Close</button></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div id="rp">
+    <div class="rp-tabs">
+      <button class="rpt act" onclick="rpTab('spot',this)">Spot</button>
+      <button class="rpt" onclick="rpTab('swap',this)">Swap</button>
+      <button class="rpt" onclick="rpTab('perp',this)">Perps</button>
+    </div>
+    <div class="rp-body">
+
+      <!-- SPOT -->
+      <div id="sec-spot" class="rp-sec act">
+        <div class="bs-grid">
+          <button class="bsb buy act" id="buyBtn" onclick="setSide('buy')">Buy CLD</button>
+          <button class="bsb sell" id="sellBtn" onclick="setSide('sell')">Sell CLD</button>
+        </div>
+        <div class="fg"><div class="fl">Order Type</div>
+          <select class="fsel" id="orderType" onchange="updateSum()">
+            <option>Limit Order</option><option>Market Order</option><option>Stop Limit</option><option>TWAP</option><option>Iceberg</option>
+          </select>
+        </div>
+        <div class="fg" id="priceRow"><div class="fl">Limit Price <span class="fa" onclick="fillMkt()">Use Market ↗</span></div>
+          <div class="fw"><input class="fi" type="number" id="lPrice" value="0.004218" step="0.000001" oninput="updateSum()"><div class="fsfx">USDC</div></div>
+        </div>
+        <div class="fg"><div class="fl">Amount <span class="fa" onclick="setMax()">Max</span></div>
+          <div class="fw"><input class="fi" type="number" id="tAmt" value="10000" oninput="updateSum()"><div class="fsfx">CLD</div></div>
+        </div>
+        <div class="pct-r">
+          <div class="pct-b" onclick="setPct(25)">25%</div>
+          <div class="pct-b" onclick="setPct(50)">50%</div>
+          <div class="pct-b" onclick="setPct(75)">75%</div>
+          <div class="pct-b" onclick="setPct(100)">Max</div>
+        </div>
+        <div class="osum">
+          <div class="osr"><span>Est. Total</span><span id="osTotal">$42.18 USDC</span></div>
+          <div class="osr"><span>Network Fee</span><span>~$0.04 (gas)</span></div>
+          <div class="osr"><span>Protocol Fee</span><span>0.10%</span></div>
+          <div class="osr"><span>Slippage</span><span class="up">0.05%</span></div>
+          <div class="osr"><span>Settlement</span><span id="settlNet">Ethereum L1</span></div>
+        </div>
+        <button class="sub-btn sub-buy" id="spotBtn" onclick="submitSpot()">Buy CLD</button>
+        <div class="divider"></div>
+        <div style="font-size:11px;color:var(--t2);margin-bottom:8px;font-weight:500">Open Orders</div>
+        <div class="osum" style="padding:8px 10px">
+          <div class="osr"><span>Limit Buy 0.003900</span><span style="color:var(--t2)">50,000 CLD</span></div>
+          <div class="osr"><span>Limit Buy 0.003750</span><span style="color:var(--t2)">100,000 CLD</span></div>
+        </div>
+      </div>
+
+      <!-- SWAP -->
+      <div id="sec-swap" class="rp-sec">
+        <div class="swap-box">
+          <div class="swap-hdr"><span>You send</span><span style="color:var(--t1)">Bal: 1,240 GPT</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="swap-tok"><div class="swap-ti i-gpt">GP</div><span class="swap-tn">GPT</span><span style="font-size:10px;color:var(--t2)">▾</span></div>
+            <div style="text-align:right;flex:1;padding-left:8px">
+              <input class="swap-amt" type="number" placeholder="0.0" value="500" id="swpFrom" oninput="calcSwap()" style="text-align:right">
+              <div class="swap-usd" style="text-align:right">≈ $1,847.50</div>
+            </div>
+          </div>
+        </div>
+        <div class="swap-flip" onclick="flipSwap()">⇅</div>
+        <div class="swap-box">
+          <div class="swap-hdr"><span>You receive</span><span style="color:var(--t1)">Bal: 0 CLD</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div class="swap-tok"><div class="swap-ti i-cld">CL</div><span class="swap-tn">CLD</span><span style="font-size:10px;color:var(--t2)">▾</span></div>
+            <div style="text-align:right;flex:1;padding-left:8px">
+              <div style="font-size:22px;font-family:var(--mono);padding:10px 0 0;text-align:right;color:var(--t0)" id="swpTo">437,294</div>
+              <div class="swap-usd" style="text-align:right">≈ $1,841.43</div>
+            </div>
+          </div>
+        </div>
+        <div class="swap-rt">
+          <div class="srr"><span>Rate</span><span>1 GPT = 874.6 CLD</span></div>
+          <div class="srr"><span>Price Impact</span><span class="up">0.31%</span></div>
+          <div class="srr"><span>Min Received</span><span>434,907 CLD</span></div>
+          <div class="srr"><span>Route</span><span style="color:var(--bl)">GPT→USDC→CLD</span></div>
+          <div class="srr"><span>AMM</span><span>PromptAMM v2</span></div>
+        </div>
+        <button class="sub-btn" style="background:var(--pu);color:#fff" onclick="submitSwap(this)">Swap Tokens</button>
+        <div class="notice" style="margin-top:10px">Cross-AI swaps route through PromptAMM v2. Compute cost differentials drive real-time rate shifts.</div>
+      </div>
+
+      <!-- PERPS -->
+      <div id="sec-perp" class="rp-sec">
+        <div class="notice">Short CLD perps to hedge bulk token purchases. If CLD price drops, your short profits offset compute cost.</div>
+        <div class="bs-grid">
+          <button class="bsb buy act" id="longBtn" onclick="setDir('long')">Long ↑</button>
+          <button class="bsb sell" id="shortBtn" onclick="setDir('short')">Short ↓</button>
+        </div>
+        <div class="fg"><div class="fl">Collateral</div>
+          <div class="fw"><input class="fi" type="number" value="1000" id="pCol" oninput="updPerp()"><div class="fsfx">USDC</div></div>
+        </div>
+        <div class="lev-wr">
+          <span class="lev-l">Leverage</span>
+          <input type="range" min="1" max="20" value="5" id="levSlider" oninput="updPerp()">
+          <span class="lev-v" id="levVal">5×</span>
+        </div>
+        <div class="fg"><div class="fl">Take Profit / Stop Loss</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div class="fw"><input class="fi" type="number" placeholder="TP" value="0.0048" style="padding:9px 10px"></div>
+            <div class="fw"><input class="fi" type="number" placeholder="SL" value="0.0038" style="padding:9px 10px"></div>
+          </div>
+        </div>
+        <div class="info-r">
+          <div class="ii"><div class="iv" id="pSz">$5,000</div><div class="il">Position Size</div></div>
+          <div class="isep"></div>
+          <div class="ii"><div class="iv dn">$0.003380</div><div class="il">Liq. Price</div></div>
+          <div class="isep"></div>
+          <div class="ii"><div class="iv up">+0.012%</div><div class="il">Funding/8h</div></div>
+        </div>
+        <div class="osum">
+          <div class="osr"><span>Notional Value</span><span id="pNot">$5,000</span></div>
+          <div class="osr"><span>Open Fee</span><span>0.05%</span></div>
+          <div class="osr"><span>Oracle</span><span>Chainlink + Pyth</span></div>
+        </div>
+        <button class="sub-btn sub-buy" id="perpBtn" onclick="submitPerp(this)">Open Long · 5×</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MARKETS PAGE ══ -->
+<div id="markets-page" class="page">
+  <div class="pg-inner">
+    <div class="pg-title">All Markets</div>
+    <div class="pg-sub">Live AI token pairs — multi-chain settlement</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px" id="mktCards"></div>
+  </div>
+</div>
+
+<!-- ══ PORTFOLIO PAGE ══ -->
+<div id="portfolio-page" class="page">
+  <div class="pg-inner">
+    <div class="pg-title">Portfolio</div>
+    <div class="pg-sub">Your AI token holdings and positions</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div class="stat-card"><div class="sc-lbl">Total Value</div><div class="sc-val">$48,291</div><div class="sc-chg up">▲ +$1,204 (2.55%)</div></div>
+      <div class="stat-card"><div class="sc-lbl">Unrealized PnL</div><div class="sc-val" style="color:var(--gr)">+$1,204</div><div class="sc-chg" style="color:var(--t2)">Across 3 positions</div></div>
+      <div class="stat-card"><div class="sc-lbl">Realized PnL (30d)</div><div class="sc-val">+$3,882</div><div class="sc-chg up">▲ Profitable month</div></div>
+      <div class="stat-card"><div class="sc-lbl">Hedge Coverage</div><div class="sc-val" style="color:var(--bl)">73.4%</div><div class="sc-chg" style="color:var(--t2)">of compute exposure</div></div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:10px;overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--b1);font-weight:600;font-size:13px">Holdings</div>
+      <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">
+        <thead><tr style="background:var(--bg3)"><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">Token</th><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">Balance</th><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">Value</th><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">Avg Cost</th><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">PnL</th><th style="padding:7px 12px;text-align:left;color:var(--t2);font-weight:500">%</th></tr></thead>
+        <tbody>
+          <tr style="border-top:1px solid var(--b1)"><td style="padding:7px 12px">Claude (CLD)</td><td style="padding:7px 12px">3,400,000</td><td style="padding:7px 12px">$14,341</td><td style="padding:7px 12px">$0.003910</td><td class="up" style="padding:7px 12px">+$1,053</td><td style="padding:7px 12px;color:var(--t2)">29.7%</td></tr>
+          <tr style="border-top:1px solid var(--b1)"><td style="padding:7px 12px">ChatGPT (GPT)</td><td style="padding:7px 12px">4,200</td><td style="padding:7px 12px">$15,519</td><td style="padding:7px 12px">$3.420</td><td class="up" style="padding:7px 12px">+$1,155</td><td style="padding:7px 12px;color:var(--t2)">32.1%</td></tr>
+          <tr style="border-top:1px solid var(--b1)"><td style="padding:7px 12px">Gemini (GEM)</td><td style="padding:7px 12px">8,750</td><td style="padding:7px 12px">$10,876</td><td style="padding:7px 12px">$1.198</td><td class="dn" style="padding:7px 12px">-$222</td><td style="padding:7px 12px;color:var(--t2)">22.5%</td></tr>
+          <tr style="border-top:1px solid var(--b1)"><td style="padding:7px 12px">LLaMA (LLM)</td><td style="padding:7px 12px">82,000</td><td style="padding:7px 12px">$7,306</td><td style="padding:7px 12px">$0.0812</td><td class="up" style="padding:7px 12px">+$723</td><td style="padding:7px 12px;color:var(--t2)">15.1%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EARN PAGE ══ -->
+<div id="earn-page" class="page">
+  <div class="pg-inner">
+    <div class="pg-title">Earn / Liquidity</div>
+    <div class="pg-sub">Provide liquidity to PromptAMM v2 pools and earn trading fees</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px" id="earnCards"></div>
+  </div>
+</div>
+
+<!-- ══ BRIDGE PAGE ══ -->
+<div id="bridge-page" class="page">
+  <div class="pg-inner" style="max-width:600px">
+    <div style="font-family:var(--mono);font-size:24px;font-weight:700;margin-bottom:4px">Deposit, Withdraw &amp; Utilize</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:20px">Fund your account, withdraw USDC, or use your tokens to prompt AI models through PROMPTEX's encrypted routing engine</div>
+
+    <!-- TAB ROW -->
+    <div style="display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px">
+      <button onclick="switchRetailTab('deposit',this)" data-tab="deposit" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:var(--bl2);color:#fff;transition:all .15s">Deposit</button>
+      <button onclick="switchRetailTab('withdraw',this)" data-tab="withdraw" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Withdraw</button>
+      <button onclick="switchRetailTab('utilize',this)" data-tab="utilize" class="retail-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Utilize</button>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div id="retailTab-deposit" style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Deposit Funds</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Add USDC or crypto to your PROMPTEX wallet to start buying AI tokens and trading on the exchange.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('MetaMask — coming soon on Ethereum & L2s','green')">
+          <div style="font-size:26px;margin-bottom:8px">🦊</div><div style="font-size:12px;font-weight:600">MetaMask</div><div style="font-size:10px;color:var(--t2);margin-top:3px">EVM direct deposit</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('WalletConnect — coming soon','green')">
+          <div style="font-size:26px;margin-bottom:8px">🔗</div><div style="font-size:12px;font-weight:600">WalletConnect</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Any EVM wallet</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Phantom — coming soon on Solana','green')">
+          <div style="font-size:26px;margin-bottom:8px">👻</div><div style="font-size:12px;font-weight:600">Phantom</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Solana native</div>
+        </div>
+        <div style="background:var(--bg4);border:1px solid var(--b2);border-radius:9px;padding:14px;cursor:pointer;text-align:center;transition:border-color .15s" onmouseover="this.style.borderColor='var(--bl)'" onmouseout="this.style.borderColor='var(--b2)'" onclick="showToast('Coinbase Pay — buy with card, coming soon','green')">
+          <div style="font-size:26px;margin-bottom:8px">💳</div><div style="font-size:12px;font-weight:600">Coinbase Pay</div><div style="font-size:10px;color:var(--t2);margin-top:3px">Buy with card</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t2);border-top:1px solid var(--b1);padding-top:12px;line-height:1.7">Supports Ethereum L1, Arbitrum, Base, Optimism, Solana, Avalanche, and BNB Chain.</div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div id="retailTab-withdraw" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Withdraw USDC</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Withdraw your USDC balance to any connected wallet. <b style="color:var(--t1)">You cannot withdraw AI tokens directly</b> — tokens can be used via Utilize or sold on the exchange first.</div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:26px">💵</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Available USDC</div>
+          <div style="font-family:var(--mono);font-size:20px;font-weight:700;color:var(--gr)">$248.79</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Amount <span class="fa" onclick="document.getElementById('retailWdAmt').value=248.79;calcRetailWd()">Max</span></div>
+        <div class="fw"><input class="fi" type="number" id="retailWdAmt" value="100" oninput="calcRetailWd()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">To wallet</div>
+        <div class="fw"><input class="fi" type="text" placeholder="0x… or connect wallet" style="padding:9px 12px;font-family:var(--mono);font-size:12px"></div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">You receive</span><span id="retailWdNet" style="color:var(--gr)">$100.00 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network gas</span><span>~$0.04</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Remaining</span><span id="retailWdRemain">$148.79</span></div>
+      </div>
+      <button onclick="showToast('Connect wallet to withdraw USDC','green')" style="width:100%;padding:13px;border-radius:10px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Withdraw →</button>
+    </div>
+
+    <!-- UTILIZE -->
+    <div id="retailTab-utilize" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Utilize — Prompt with Your Tokens</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:16px">Use the AI tokens in your portfolio to make real API calls — routed through other users who have deposited their API credits. <b style="color:var(--t1)">Their API key is never exposed to you.</b> PROMPTEX's encrypted routing engine proxies your prompt through their account and returns the response. You pay in tokens, they get compensated from the routing pool.</div>
+      <div class="fg">
+        <div class="fl" style="margin-bottom:6px">Token to use</div>
+        <select class="fsel" id="retailUtilToken">
+          <option>Claude (CLD) — 3,400,000 in portfolio</option>
+          <option>ChatGPT (GPT) — 4,200 in portfolio</option>
+          <option>Gemini (GEM) — 8,750 in portfolio</option>
+        </select>
+      </div>
+      <div class="fg">
+        <div class="fl" style="margin-bottom:6px">Your prompt</div>
+        <textarea style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:10px 12px;font-family:var(--sans);font-size:13px;outline:none;resize:vertical;min-height:100px;line-height:1.6;transition:border-color .15s" placeholder="Type your prompt…" id="retailPrompt" onfocus="this.style.borderColor='var(--b3)'" onblur="this.style.borderColor='var(--b2)'"></textarea>
+      </div>
+      <div class="osum">
+        <div class="osr"><span>Routing</span><span style="color:var(--pu)">Encrypted P2P engine</span></div>
+        <div class="osr"><span>Depositor's API key</span><span style="color:var(--gr)">Never revealed to you</span></div>
+        <div class="osr"><span>Est. cost</span><span>~240 CLD / 1K tokens</span></div>
+      </div>
+      <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:9px 11px;font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:12px">
+        🏗️ <b style="color:var(--am)">Routing engine in development.</b> The encrypted proxy layer that routes prompts through depositors' API keys without exposing them is the core PROMPTEX infrastructure being built.
+      </div>
+      <button onclick="submitRetailUtilize(this)" class="sub-btn" style="background:var(--pu);color:#fff">Send via PROMPTEX →</button>
+      <div id="retailUtilResponse" style="display:none;margin-top:12px;background:var(--bg3);border:1px solid var(--b1);border-radius:9px;padding:12px">
+        <div style="font-size:10px;color:var(--t2);font-family:var(--mono);margin-bottom:7px;display:flex;justify-content:space-between">
+          <span>Response · P2P encrypted route</span><span style="color:var(--gr)">● Live</span>
+        </div>
+        <div style="font-size:12px;color:var(--t0);line-height:1.7" id="retailUtilText"></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--b1);font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;gap:14px">
+          <span>Cost: <span style="color:var(--t0)">312 CLD</span></span>
+          <span>Latency: <span style="color:var(--t0)">1.2s</span></span>
+          <span>Route: <span style="color:var(--pu)">encrypted</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ REDEEM PAGE ══ -->
+<div id="redeem-page" class="page">
+  <div class="pg-inner">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+      <div><div class="pg-title">Token Redemption</div><div class="pg-sub">Agent-mediated: sell on-chain tokens → replenish AI compute credits</div></div>
+      <button onclick="openAiLink()" style="padding:8px 18px;border-radius:8px;background:var(--bl2);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);margin-top:4px">+ Link AI Account</button>
+    </div>
+
+    <div style="background:linear-gradient(135deg,rgba(61,139,255,.07),rgba(34,211,238,.05));border:1px solid rgba(61,139,255,.18);border-radius:12px;padding:16px 20px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:12px;letter-spacing:.5px;text-transform:uppercase">How Redemption Works</div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;gap:0;align-items:center">
+        <div style="text-align:center;padding:6px"><div style="font-size:20px;margin-bottom:5px">🏦</div><div style="font-size:11px;font-weight:600;margin-bottom:2px">You hold</div><div style="font-size:10px;color:var(--t2)">On-chain CLD / GPT tokens in wallet</div></div>
+        <div style="text-align:center;color:var(--t3);font-size:18px">→</div>
+        <div style="text-align:center;padding:6px"><div style="font-size:20px;margin-bottom:5px">🤖</div><div style="font-size:11px;font-weight:600;margin-bottom:2px">Agent liquidates</div><div style="font-size:10px;color:var(--t2)">Sells tokens at market on PROMPTEX</div></div>
+        <div style="text-align:center;color:var(--t3);font-size:18px">→</div>
+        <div style="text-align:center;padding:6px"><div style="font-size:20px;margin-bottom:5px">💱</div><div style="font-size:11px;font-weight:600;margin-bottom:2px">USDC settled</div><div style="font-size:10px;color:var(--t2)">Proceeds held in escrow contract</div></div>
+        <div style="text-align:center;color:var(--t3);font-size:18px">→</div>
+        <div style="text-align:center;padding:6px"><div style="font-size:20px;margin-bottom:5px">🔑</div><div style="font-size:11px;font-weight:600;margin-bottom:2px">API call</div><div style="font-size:10px;color:var(--t2)">Agent buys credits via your scoped key</div></div>
+        <div style="text-align:center;color:var(--t3);font-size:18px">→</div>
+        <div style="text-align:center;padding:6px"><div style="font-size:20px;margin-bottom:5px">⚡</div><div style="font-size:11px;font-weight:600;margin-bottom:2px">Credits added</div><div style="font-size:10px;color:var(--t2)">On-chain receipt + email sent</div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">Linked AI Accounts</div>
+        <div class="ai-card linked" onclick="openRedeem('anthropic')">
+          <div class="aic-ic" style="background:#1c1018">🟠</div>
+          <div><div class="aic-n">Anthropic / Claude</div><div class="aic-s">user@company.com · Balance: $84.20</div><div style="font-size:10px;color:var(--gr);margin-top:3px">Agent authorized · Last redeemed 2d ago</div></div>
+          <span class="aic-b lb-linked">Linked</span>
+        </div>
+        <div class="ai-card linked" onclick="openRedeem('openai')">
+          <div class="aic-ic" style="background:#0a180e">🟢</div>
+          <div><div class="aic-n">OpenAI / ChatGPT</div><div class="aic-s">user@company.com · Balance: $212.00</div><div style="font-size:10px;color:var(--gr);margin-top:3px">Agent authorized · Auto-topup active</div></div>
+          <span class="aic-b lb-linked">Linked</span>
+        </div>
+        <div class="ai-card" onclick="openAiLink()">
+          <div class="aic-ic" style="background:#10132a">🔵</div>
+          <div><div class="aic-n">Google / Gemini</div><div class="aic-s">Not linked</div></div>
+          <span class="aic-b lb-link">+ Link</span>
+        </div>
+        <div class="ai-card" onclick="openAiLink()">
+          <div class="aic-ic" style="background:#1a0f16">🔴</div>
+          <div><div class="aic-n">Mistral AI</div><div class="aic-s">Not linked</div></div>
+          <span class="aic-b lb-link">+ Link</span>
+        </div>
+        <div class="ai-card" onclick="openAiLink()">
+          <div class="aic-ic" style="background:#1a1500">🟡</div>
+          <div><div class="aic-n">Meta / LLaMA API</div><div class="aic-s">Not linked</div></div>
+          <span class="aic-b lb-link">+ Link</span>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">Redemption Agent</div>
+        <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+            <div style="width:36px;height:36px;border-radius:9px;background:var(--gr3);border:1px solid var(--gr2);display:flex;align-items:center;justify-content:center;font-size:18px">🤖</div>
+            <div><div style="font-size:13px;font-weight:600">PROMPTEX Redemption Agent</div><div style="font-size:10px;color:var(--gr);margin-top:2px">● Active · Monitoring 2 accounts</div></div>
+            <div style="margin-left:auto;text-align:right"><div style="font-size:10px;color:var(--t2)">Agent address</div><div style="font-family:var(--mono);font-size:10px;color:var(--bl)">0x7f3a…c291</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px">
+            <div style="background:var(--bg3);border-radius:7px;padding:10px"><div style="color:var(--t2);margin-bottom:4px">Permissions</div><div style="color:var(--gr);line-height:1.8">✓ Sell tokens<br>✓ Route to AI APIs<br>✓ Auto-topup trigger</div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px"><div style="color:var(--t2);margin-bottom:4px">Restrictions</div><div style="color:var(--re);line-height:1.8">✗ Buy tokens<br>✗ Transfer wallet<br>✗ Access USDC</div></div>
+          </div>
+        </div>
+        <div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">Auto-Topup Rules</div>
+        <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--b1)">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--gr)"></div>
+            <div><div style="font-size:12px;font-weight:500">Anthropic → below $20</div><div style="font-size:10px;color:var(--t2)">Sell 5,000 CLD · Add $20</div></div>
+            <span style="font-size:10px;color:var(--gr);font-family:var(--mono)">Active</span>
+          </div>
+          <div style="display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:10px 12px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--gr)"></div>
+            <div><div style="font-size:12px;font-weight:500">OpenAI → below $50</div><div style="font-size:10px;color:var(--t2)">Sell 50 GPT · Add $100</div></div>
+            <span style="font-size:10px;color:var(--gr);font-family:var(--mono)">Active</span>
+          </div>
+        </div>
+        <button onclick="openRedeem('anthropic')" style="width:100%;padding:11px;border-radius:8px;background:var(--cy);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Redeem Tokens Now →</button>
+        <div style="font-size:11px;font-weight:600;color:var(--t1);margin:16px 0 10px;letter-spacing:.5px;text-transform:uppercase">Recent Redemptions</div>
+        <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:10px;overflow:hidden">
+          <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px">
+            <thead><tr style="background:var(--bg3)"><th style="padding:6px 10px;text-align:left;color:var(--t2);font-weight:500">Date</th><th style="padding:6px 10px;text-align:left;color:var(--t2);font-weight:500">Sold</th><th style="padding:6px 10px;text-align:left;color:var(--t2);font-weight:500">To</th><th style="padding:6px 10px;text-align:right;color:var(--t2);font-weight:500">Value</th></tr></thead>
+            <tbody>
+              <tr style="border-top:1px solid var(--b1)"><td style="padding:6px 10px;color:var(--t1)">Mar 18</td><td style="padding:6px 10px">5,000 CLD</td><td style="padding:6px 10px;color:var(--t1)">Anthropic</td><td class="up" style="padding:6px 10px;text-align:right">+$21.09</td></tr>
+              <tr style="border-top:1px solid var(--b1)"><td style="padding:6px 10px;color:var(--t1)">Mar 15</td><td style="padding:6px 10px">120 GPT</td><td style="padding:6px 10px;color:var(--t1)">OpenAI</td><td class="up" style="padding:6px 10px;text-align:right">+$443.40</td></tr>
+              <tr style="border-top:1px solid var(--b1)"><td style="padding:6px 10px;color:var(--t1)">Mar 10</td><td style="padding:6px 10px">500 GEM</td><td style="padding:6px 10px;color:var(--t1)">Google</td><td class="up" style="padding:6px 10px;text-align:right">+$621.50</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NETWORK MODAL ══ -->
+<div class="modal-bg" id="netModal" onclick="if(event.target===this)closeNet()">
+  <div class="modal" style="width:360px">
+    <div class="modal-hdr"><div><div class="modal-title">Select Network</div></div><button class="modal-x" onclick="closeNet()">×</button></div>
+    <div style="padding:10px;max-height:450px;overflow-y:auto" id="netModalBody"></div>
+    <div style="padding:10px 14px;border-top:1px solid var(--b1);background:var(--bg3);font-size:11px;color:var(--t2);line-height:1.5">All networks share the same PROMPTEX liquidity layer. Gas fees and finality vary by chain.</div>
+  </div>
+</div>
+
+<!-- ══ WALLET MODAL ══ -->
+<div class="modal-bg" id="walletModal" onclick="if(event.target===this)closeWallet()">
+  <div class="modal">
+    <div class="modal-hdr"><div><div class="modal-title">Connect Wallet</div><div class="modal-sub" id="walletSubLbl">Connecting to: <span style="color:var(--cy)">Ethereum L1</span></div></div><button class="modal-x" onclick="closeWallet()">×</button></div>
+    <div class="w-grid" id="walletGrid"></div>
+    <div id="walletConn" style="display:none" class="w-conn">
+      <div class="w-conn-icon" id="wConnIco">🦊</div>
+      <div class="w-conn-name" id="wConnName">MetaMask</div>
+      <div class="w-conn-sub">Check your wallet for a connection request…</div>
+      <div class="wbar"><div class="wbar-fill"></div></div>
+    </div>
+    <div class="w-foot"><div class="w-tos">By connecting you agree to PROMPTEX <span style="color:var(--bl);cursor:pointer">Terms of Service</span>. PROMPTEX never holds custody of your funds.</div></div>
+  </div>
+</div>
+
+<!-- ══ DOCS PAGE ══ -->
+<!-- ══ ENTERPRISE PAGE ══ -->
+<div id="enterprise-page" class="page">
+  <div style="max-width:640px;margin:0 auto;padding:40px 24px 60px">
+
+    <!-- HEADER -->
+    <div style="margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="background:rgba(247,183,49,.12);border:1px solid rgba(247,183,49,.3);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--am);letter-spacing:.5px;text-transform:uppercase">Enterprise Desk</div>
+        <div style="background:var(--gr3);border:1px solid var(--gr2);border-radius:8px;padding:4px 10px;font-size:10px;color:var(--gr);font-family:var(--mono)">● Agent Active</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:26px;font-weight:700;margin-bottom:6px">Deposit, Withdraw &amp; Utilize</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7">Lock your company's API credits into PROMPTEX. Trade them, hedge them, or list them for other users to buy.</div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div style="background:rgba(155,109,255,.07);border:1px solid rgba(155,109,255,.3);border-radius:12px;padding:20px 22px;margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="font-size:16px">🔒</div>
+        <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0)">How It Works</div>
+      </div>
+      <div style="font-size:13px;color:var(--t1);line-height:1.9;margin-bottom:14px">
+        Company B, locked into an OpenAI contract, can come to PROMPTEX and <b style="color:var(--t0)">silently use Company A's Claude tokens</b> — and neither Anthropic nor OpenAI can see the cross-company routing. Company A earns from the sale. Company B gets access to a provider they couldn't use directly.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🏢</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">Company A</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Has a $2M Anthropic contract. Deposits Claude tokens onto PROMPTEX. Lists them for sale. Earns yield on idle credits.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">⚡</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">PROMPTEX Routes</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Smart contracts handle the exchange. Encrypted intermediary routes API calls. Providers see a single account — not a marketplace.</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🔑</div>
+          <div style="font-size:11px;font-weight:600;color:var(--t0);margin-bottom:4px">Company B</div>
+          <div style="font-size:10px;color:var(--t2);line-height:1.6">Locked into OpenAI on paper. Buys Claude tokens on PROMPTEX. Uses them privately. Neither provider sees the cross-routing.</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--t3);font-style:italic;line-height:1.6">Note: Users should review their enterprise agreements. PROMPTEX routes usage through an encrypted intermediary — providers see normal API calls, not a redistribution platform.</div>
+    </div>
+
+    <!-- ORG BALANCE SUMMARY -->
+    <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:20px 24px;margin-bottom:20px">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px">Org Vault</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">USDC Balance</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gr)">$284,120</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">CLD Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">142M</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">GPT Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">580K</div>
+        </div>
+        <div style="background:var(--bg3);border-radius:9px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--t2);margin-bottom:4px">GEM Tokens</div>
+          <div style="font-family:var(--mono);font-size:15px;font-weight:700">78K</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THREE TABS -->
+    <div style="display:flex;background:var(--bg3);border-radius:12px;padding:4px;gap:3px;margin-bottom:20px" id="entTabRow">
+      <button onclick="switchEntTab('deposit',this)" data-tab="deposit" class="ent-tab act" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:var(--bl2);color:#fff;transition:all .15s">Deposit</button>
+      <button onclick="switchEntTab('withdraw',this)" data-tab="withdraw" class="ent-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Withdraw</button>
+      <button onclick="switchEntTab('utilize',this)" data-tab="utilize" class="ent-tab" style="flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);background:none;color:var(--t2);transition:all .15s">Utilize</button>
+    </div>
+
+    <!-- DEPOSIT TAB -->
+    <div id="entTab-deposit" style="background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Deposit Funds or API Credits</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Add USDC to your org vault, or convert your existing AI provider API credits into on-chain tokens. Deposited tokens can be traded, hedged, or listed on the PROMPTEX marketplace — <b style="color:var(--t1)">invisible to the provider.</b></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        <div onclick="setDepType('usdc')" id="depTypeUsdc" style="background:var(--bg3);border:2px solid var(--bl);border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all .15s">
+          <div style="font-size:22px;margin-bottom:6px">💵</div>
+          <div style="font-size:12px;font-weight:600">Deposit USDC</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:3px">Fund your vault to buy tokens or pay fees</div>
+        </div>
+        <div onclick="setDepType('credits')" id="depTypeCredits" style="background:var(--bg3);border:2px solid transparent;border-radius:10px;padding:14px;cursor:pointer;text-align:center;transition:all .15s" onmouseover="this.style.borderColor='var(--b3)'" onmouseout="if(!this.classList.contains('dep-sel'))this.style.borderColor='transparent'">
+          <div style="font-size:22px;margin-bottom:6px">🔑</div>
+          <div style="font-size:12px;font-weight:600">Deposit API Credits</div>
+          <div style="font-size:10px;color:var(--t2);margin-top:3px">Tokenize your existing Anthropic / OpenAI balance</div>
+        </div>
+      </div>
+
+      <div id="dep-usdc-form">
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">Amount</div>
+          <div class="fw"><input class="fi" type="number" value="50000" placeholder="USDC amount"><div class="fsfx">USDC</div></div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network</span><span id="depUsdcNet">Ethereum L1</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Gas est.</span><span>~$0.08</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Vault balance after</span><span style="color:var(--gr)">$334,120</span></div>
+        </div>
+        <button onclick="submitEntDeposit(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--bl2);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Deposit USDC →</button>
+      </div>
+
+      <div id="dep-credits-form" style="display:none">
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">Provider</div>
+          <select class="fsel" id="depProvider" onchange="updateDepEst()">
+            <option value="cld">Anthropic / Claude → CLD tokens ($0.004218 / token)</option>
+            <option value="gpt">OpenAI / ChatGPT → GPT tokens ($3.695 / token)</option>
+            <option value="gem">Google / Gemini → GEM tokens ($1.243 / token)</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="fl" style="margin-bottom:6px">USD value of credits to tokenize</div>
+          <div class="fw"><input class="fi" type="number" id="depAmt" value="100000" oninput="updateDepEst()"><div class="fsfx">USD</div></div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Tokens minted 1:1</span><span id="depTokens" style="color:var(--gr)">23,703,450 CLD</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Mint fee</span><span>0.05%</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Provider sees</span><span style="color:var(--pu)">Single API account (encrypted)</span></div>
+          <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Escrow contract</span><span style="color:var(--bl)">0x4f2a…b819</span></div>
+        </div>
+        <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+          🏗️ <b style="color:var(--am)">Infrastructure in development.</b> Credits are locked in an audited escrow contract and equivalent tokens are minted 1:1 to your org wallet.
+        </div>
+        <button onclick="submitEntDeposit(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--bl2);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Deposit &amp; Mint Tokens →</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW TAB (USDC only) -->
+    <div id="entTab-withdraw" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Withdraw USDC</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Withdraw your USDC balance directly to your connected crypto wallet. <b style="color:var(--t1)">Note: you cannot withdraw AI tokens</b> — tokens can only be utilized through the PROMPTEX routing engine or traded on the marketplace. USDC earned from token sales is freely withdrawable at any time.</div>
+
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:16px;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">💵</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--t2);margin-bottom:3px">Available USDC Balance</div>
+          <div style="font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gr)">$284,120.00</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:var(--t2)">Wallet</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--bl)">Not connected</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Amount to withdraw <span class="fa" onclick="document.getElementById('wdUsdcAmt').value=284120;calcWdUsdc()">Max</span></div>
+        <div class="fw"><input class="fi" type="number" id="wdUsdcAmt" value="50000" oninput="calcWdUsdc()"><div class="fsfx">USDC</div></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Destination wallet</div>
+        <div class="fw"><input class="fi" type="text" placeholder="0x… or connect wallet" style="padding:9px 12px;font-family:var(--mono);font-size:12px"></div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">You receive</span><span id="wdUsdcNet" style="color:var(--gr)">$50,000.00 USDC</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Network fee</span><span>~$0.08 gas</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Remaining balance</span><span id="wdUsdcRemain">$234,120.00</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Settlement</span><span>Ethereum L1 · ~12s</span></div>
+      </div>
+      <button onclick="submitUsdcWithdraw(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Connect Wallet &amp; Withdraw USDC →</button>
+    </div>
+
+    <!-- UTILIZE TAB -->
+    <div id="entTab-utilize" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:14px;padding:24px">
+      <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:4px">Utilize — Use Your PROMPTEX Credits</div>
+      <div style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:20px">Utilize means <b style="color:var(--t1)">actually using the AI tokens in your PROMPTEX portfolio to make real API calls.</b> When you prompt, PROMPTEX routes your request through its encrypted engine to the company that deposited those credits — your call goes out under their API key, but <b style="color:var(--t1)">neither you nor PROMPTEX can see or steal that key.</b> The routing layer is fully encrypted end-to-end. You just spend your tokens and get a response, as if you had the API access yourself.</div>
+
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Token to use</div>
+        <select class="fsel" id="wdToken" onchange="updateWdEst()">
+          <option value="cld">Claude (CLD) — 142,000,000 available in portfolio</option>
+          <option value="gpt">ChatGPT (GPT) — 580,000 available in portfolio</option>
+          <option value="gem">Gemini (GEM) — 78,000 available in portfolio</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="fl" style="margin-bottom:6px">Your prompt</div>
+        <textarea style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:10px 12px;font-family:var(--sans);font-size:13px;outline:none;resize:vertical;min-height:100px;line-height:1.6" placeholder="Enter your prompt here…" id="utilizePrompt"></textarea>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Routing</span><span style="color:var(--pu)">PROMPTEX encrypted engine</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">API key</span><span style="color:var(--gr)">Never exposed — end-to-end encrypted</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Est. token cost</span><span id="wdTokLbl">~240 CLD per 1K tokens</span></div>
+        <div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Portfolio balance after</span><span id="wdUsdLbl" style="color:var(--t0)">141,999,760 CLD</span></div>
+      </div>
+      <div style="background:rgba(247,183,49,.06);border:1px solid rgba(247,183,49,.2);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--t2);line-height:1.6;margin-bottom:14px">
+        🏗️ <b style="color:var(--am)">Routing engine in development.</b> The encrypted proxy layer that routes your calls through depositors' API keys without exposing them is being built. This is the core technical piece of PROMPTEX infrastructure.
+      </div>
+      <button onclick="submitUtilize(this)" style="width:100%;padding:13px;border-radius:10px;background:var(--pu);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Send via PROMPTEX Routing Engine →</button>
+
+      <div id="utilizeResponse" style="display:none;margin-top:16px;background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px">
+        <div style="font-size:10px;color:var(--t2);font-family:var(--mono);margin-bottom:8px;display:flex;justify-content:space-between">
+          <span>Response · routed via PROMPTEX · CLD</span>
+          <span style="color:var(--gr)">● Encrypted</span>
+        </div>
+        <div style="font-size:13px;color:var(--t0);line-height:1.7" id="utilizeResponseText"></div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--b1);font-family:var(--mono);font-size:10px;color:var(--t2);display:flex;gap:16px">
+          <span>Tokens used: <span style="color:var(--t0)">312 CLD</span></span>
+          <span>Latency: <span style="color:var(--t0)">1.4s</span></span>
+          <span>Route: <span style="color:var(--pu)">encrypted</span></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="docs-page" class="page">
+  <div style="max-width:820px;margin:0 auto;padding:32px 32px 60px">
+
+    <!-- HERO -->
+    <div style="border-bottom:1px solid var(--b1);padding-bottom:32px;margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gr),var(--cy));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#000;font-family:var(--mono)">P</div>
+        <div style="font-family:var(--mono);font-size:13px;color:var(--t2);letter-spacing:1px;text-transform:uppercase">PROMPTEX Documentation</div>
+      </div>
+      <h1 style="font-family:var(--mono);font-size:32px;font-weight:700;line-height:1.2;margin-bottom:14px">The AI Compute<br><span style="color:var(--gr)">Financial Layer</span></h1>
+      <p style="font-size:15px;color:var(--t1);line-height:1.8;max-width:620px">PROMPTEX is the first decentralized exchange for AI compute tokens — enabling companies to trade, hedge, and manage risk on their AI API spending the same way they hedge any other business input cost.</p>
+    </div>
+
+    <!-- THE CORE PROBLEM -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cy);margin-bottom:12px">The Problem</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:16px">AI costs are a massive, unhedged business risk</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div style="background:var(--bg2);border:1px solid var(--re3);border-left:3px solid var(--re);border-radius:10px;padding:16px">
+          <div style="font-size:22px;margin-bottom:8px">📉</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">Pricing volatility</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.7">AI providers change token prices with little notice. A company budgeting $200K/yr on Claude API can see costs shift 30–50% overnight after a model update or repricing event.</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--re3);border-left:3px solid var(--re);border-radius:10px;padding:16px">
+          <div style="font-size:22px;margin-bottom:8px">🔒</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">Vendor lock-in</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.7">Enterprise contracts with OpenAI lock companies into multi-year commitments at fixed token volumes. If a better model launches elsewhere, you're stuck — or you eat the switching cost.</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--re3);border-left:3px solid var(--re);border-radius:10px;padding:16px">
+          <div style="font-size:22px;margin-bottom:8px">💸</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">No secondary market</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.7">If you over-purchase API credits, they expire or sit idle. There's no way to sell excess capacity, recover capital, or transfer prepaid credits to another provider.</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--re3);border-left:3px solid var(--re);border-radius:10px;padding:16px">
+          <div style="font-size:22px;margin-bottom:8px">📊</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">Zero financial tooling</div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.7">Companies hedge oil, FX, and interest rates with sophisticated derivatives. AI compute — now a core business input — has no equivalent financial instruments.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE SOLUTION -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px">The Solution</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:16px">PROMPTEX gives AI compute a financial market</h2>
+      <p style="font-size:14px;color:var(--t1);line-height:1.8;margin-bottom:20px">Just as commodity futures let airlines hedge jet fuel costs years in advance, PROMPTEX lets companies hedge their AI spending. On-chain tokens represent real, redeemable compute credits — tradable 24/7 on a decentralized exchange.</p>
+
+      <div style="background:linear-gradient(135deg,rgba(5,211,148,.06),rgba(34,211,238,.04));border:1px solid rgba(5,211,148,.2);border-radius:12px;padding:20px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;color:var(--t0);margin-bottom:16px">Core insight: AI tokens are a commodity</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:12px">
+          <div style="text-align:center;padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+            <div style="font-size:20px;margin-bottom:6px">🛢️</div>
+            <div style="color:var(--t2);margin-bottom:4px">Oil futures</div>
+            <div style="color:var(--gr);font-family:var(--mono)">Lock in price<br>for delivery later</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+            <div style="font-size:20px;margin-bottom:6px">💱</div>
+            <div style="color:var(--t2);margin-bottom:4px">FX forwards</div>
+            <div style="color:var(--gr);font-family:var(--mono)">Hedge currency<br>exposure on deals</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:rgba(0,0,0,.2);border-radius:8px">
+            <div style="font-size:20px;margin-bottom:6px">🤖</div>
+            <div style="color:var(--t2);margin-bottom:4px">AI token perps</div>
+            <div style="color:var(--gr);font-family:var(--mono)">Hedge compute<br>spend in real-time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY USE CASES -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cy);margin-bottom:12px">Use Cases</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:20px">Who this is built for</h2>
+
+      <!-- USE CASE 1 - ENTERPRISE HEDGE -->
+      <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-bottom:12px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--bl3);border:1px solid var(--bl2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏢</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">Enterprise: Hedging a $2M OpenAI contract</div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.8;margin-bottom:12px">A company signs a $2M/year enterprise agreement with OpenAI for GPT-4 access. They're bullish on Claude's upcoming model improvements and want to retain flexibility. On PROMPTEX, they open a <span style="color:var(--re);font-family:var(--mono)">short GPT perpetual</span> position sized to their contract value.</div>
+            <div style="background:var(--bg3);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+                <div><div style="color:var(--t2);margin-bottom:4px">Scenario A</div><div style="color:var(--t0)">GPT price rises 40%</div><div style="color:var(--re);margin-top:4px">Contract costs more</div><div style="color:var(--gr)">Short position profits ✓</div></div>
+                <div style="border-left:1px solid var(--b1);border-right:1px solid var(--b1)"><div style="color:var(--t2);margin-bottom:4px">Scenario B</div><div style="color:var(--t0)">Price stays flat</div><div style="color:var(--t2);margin-top:4px">Small funding cost</div><div style="color:var(--t2)">Hedge preserved</div></div>
+                <div><div style="color:var(--t2);margin-bottom:4px">Scenario C</div><div style="color:var(--t0)">Switch to Claude</div><div style="color:var(--gr);margin-top:4px">Buy CLD tokens ✓</div><div style="color:var(--gr)">Short closed for profit</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 2 - PROVIDER SWITCH -->
+      <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-bottom:12px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--gr3);border:1px solid var(--gr2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🔀</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">Switching providers mid-contract</div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.8">A startup pre-purchased 50M Claude tokens at $0.003/token ($150K total). Claude releases a new model at a higher price. The startup swaps their excess CLD tokens for GPT tokens on PROMPTEX, effectively transferring their compute budget to OpenAI at market rates — something impossible to do directly with either provider.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 3 - TREASURY -->
+      <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-bottom:12px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(155,109,255,.15);border:1px solid rgba(155,109,255,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏛️</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">AI treasury management</div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.8">A large tech company has $10M in annual AI spend spread across Anthropic, OpenAI, and Google. Their finance team manages this like a commodity portfolio — going long providers they expect to gain share, shorting ones losing ground, and using options to cap their quarterly compute cost at a known maximum. PROMPTEX is the exchange that makes this possible.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USE CASE 4 - INDIVIDUALS -->
+      <div style="background:var(--bg2);border:1px solid var(--b1);border-radius:12px;padding:20px;margin-bottom:12px">
+        <div style="display:flex;align-items:flex-start;gap:14px">
+          <div style="width:44px;height:44px;border-radius:10px;background:rgba(247,183,49,.12);border:1px solid rgba(247,183,49,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👩‍💻</div>
+          <div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:6px">Individual developers &amp; speculators</div>
+            <div style="font-size:12px;color:var(--t2);line-height:1.8">A developer bullish on Claude buys CLD tokens when they're cheap, then redeems them for Anthropic credits when needed — effectively locking in a lower compute rate. Traders can speculate on which AI provider will dominate, pricing in model quality, adoption, and competitive dynamics.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW TOKENS WORK -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px">Token Design</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:16px">How AI tokens map to real compute</h2>
+      <p style="font-size:14px;color:var(--t1);line-height:1.8;margin-bottom:16px">Each on-chain token represents a redeemable claim on AI compute credits at a specific provider. The peg is maintained through the Redemption Agent system — when you redeem, an authorized agent liquidates your tokens and uses the proceeds to purchase real API credits on your linked account.</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--b1);border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <div style="background:var(--bg2);padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:4px">CLD</div>
+          <div style="font-size:11px;color:var(--t2)">Claude / Anthropic</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--gr);margin-top:6px">$0.004218</div>
+        </div>
+        <div style="background:var(--bg2);padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:4px">GPT</div>
+          <div style="font-size:11px;color:var(--t2)">ChatGPT / OpenAI</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--gr);margin-top:6px">$3.695</div>
+        </div>
+        <div style="background:var(--bg2);padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:4px">GEM</div>
+          <div style="font-size:11px;color:var(--t2)">Gemini / Google</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--gr);margin-top:6px">$1.243</div>
+        </div>
+        <div style="background:var(--bg2);padding:14px;text-align:center">
+          <div style="font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t0);margin-bottom:4px">LLM</div>
+          <div style="font-size:11px;color:var(--t2)">LLaMA / Meta</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--gr);margin-top:6px">$0.0891</div>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:14px;font-size:12px;color:var(--t2);line-height:1.8">
+        <b style="color:var(--t1)">Price discovery:</b> Token prices float based on market supply and demand — reflecting expectations about model quality, provider reliability, pricing changes, and competitive dynamics. A provider about to raise prices will see their token price rise ahead of the announcement as informed traders position accordingly.
+      </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--cy);margin-bottom:12px">Roadmap</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:20px">What we're building</h2>
+      <div style="position:relative">
+        <div style="position:absolute;left:16px;top:0;bottom:0;width:1px;background:var(--b2)"></div>
+        <div style="display:flex;flex-direction:column;gap:0">
+
+          <div style="display:flex;gap:16px;padding-bottom:20px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--gr3);border:2px solid var(--gr2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--gr);flex-shrink:0;z-index:1">✓</div>
+            <div style="padding-top:4px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 1 — UI &amp; Concept <span style="font-family:var(--mono);font-size:10px;color:var(--gr);margin-left:8px">Now</span></div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">Full trading terminal UI, spot/swap/perps interface, redemption agent UX, multi-chain network switcher, wallet modal design.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding-bottom:20px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bl3);border:2px solid var(--bl2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--bl);flex-shrink:0;z-index:1">2</div>
+            <div style="padding-top:4px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 2 — Smart Contracts <span style="font-family:var(--mono);font-size:10px;color:var(--bl);margin-left:8px">Q3 2025</span></div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">ERC-20 token contracts for CLD/GPT/GEM, PromptAMM v1 liquidity pools on Ethereum L1, Redemption Agent contract with scoped key escrow, Chainlink oracle integration for pricing.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding-bottom:20px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t2);flex-shrink:0;z-index:1">3</div>
+            <div style="padding-top:4px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 3 — Perpetuals <span style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-left:8px">Q4 2025</span></div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">Perpetual futures contracts with up to 20× leverage, funding rate mechanism, liquidation engine, Pyth oracle integration for low-latency price feeds. Enterprise hedge desk tooling.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px;padding-bottom:20px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t2);flex-shrink:0;z-index:1">4</div>
+            <div style="padding-top:4px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 4 — Enterprise &amp; Multi-chain <span style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-left:8px">Q1 2026</span></div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">OAuth2 org-level API key delegation, multi-seat enterprise redemption, Aster-style cross-chain deposits (Solana, Base, Arbitrum, Avalanche), expanded provider integrations and enterprise billing tools.</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:16px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--bg4);border:2px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--t2);flex-shrink:0;z-index:1">5</div>
+            <div style="padding-top:4px">
+              <div style="font-size:13px;font-weight:600;margin-bottom:4px">Phase 5 — Options &amp; Structured Products <span style="font-family:var(--mono);font-size:10px;color:var(--t2);margin-left:8px">2026</span></div>
+              <div style="font-size:12px;color:var(--t2);line-height:1.7">AI compute options (calls/puts on token price), structured hedge products for enterprise CFOs, compute cost swaps, integration with corporate treasury management systems.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div style="margin-bottom:40px">
+      <div style="font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gr);margin-bottom:12px">FAQ</div>
+      <h2 style="font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:16px">Common questions</h2>
+      <div id="faqList"></div>
+    </div>
+
+    <!-- CTA -->
+    <div style="background:linear-gradient(135deg,rgba(5,211,148,.08),rgba(34,211,238,.06));border:1px solid rgba(5,211,148,.2);border-radius:14px;padding:28px;text-align:center">
+      <div style="font-family:var(--mono);font-size:22px;font-weight:700;margin-bottom:10px">Ready to hedge your AI spend?</div>
+      <div style="font-size:14px;color:var(--t2);margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto">PROMPTEX is currently in UI preview. Smart contracts and live trading launching soon. Join the waitlist to get early access.</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px">
+        <button onclick="showPage('trade',document.querySelector('.nl'))" style="padding:12px 28px;border-radius:9px;background:var(--gr2);border:none;color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sans)">Explore the Exchange →</button>
+        <button onclick="showToast('Waitlist coming soon — follow @PromptExchang3 on X for updates','green')" style="padding:12px 24px;border-radius:9px;background:transparent;border:1px solid var(--b2);color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans)">Join Waitlist</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ AI LINK MODAL ══ -->
+<div class="modal-bg" id="aiModal" onclick="if(event.target===this)closeAi()">
+  <div class="modal" style="width:460px">
+    <div class="modal-hdr"><div><div class="modal-title">Link AI Account</div><div class="modal-sub">Authorize a Redemption Agent for token withdrawals</div></div><button class="modal-x" onclick="closeAi()">×</button></div>
+    <div class="modal-body" id="aiModalBody"></div>
+  </div>
+</div>
+
+<!-- ══ REDEEM MODAL ══ -->
+<div class="modal-bg" id="redeemModal" onclick="if(event.target===this)closeRedeem()">
+  <div class="modal" style="width:460px">
+    <div class="modal-hdr"><div><div class="modal-title">Redeem Tokens</div><div class="modal-sub">Agent liquidates tokens → buys AI credits</div></div><button class="modal-x" onclick="closeRedeem()">×</button></div>
+    <div class="modal-body" id="redeemBody"></div>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<div id="sbar">
+  <div class="sbi"><span>ETH Gas</span><span class="sbv">12 gwei</span></div>
+  <div class="sbsep"></div>
+  <div class="sbi"><span>ETH/USD</span><span class="sbv">$3,284</span></div>
+  <div class="sbsep"></div>
+  <div class="sbi"><span>TVL</span><span class="sbv up">$24.8M</span></div>
+  <div class="sbsep"></div>
+  <div class="sbi"><span>24h Volume</span><span class="sbv">$8.3M</span></div>
+  <div class="sbsep"></div>
+  <div class="sbi"><span>Block</span><span class="sbv" id="blockNum">21,847,203</span></div>
+  <div class="sbsep"></div>
+  <div class="sbi"><span>Traders Online</span><span class="sbv">1,847</span></div>
+  <div class="slive"><div class="cdot"></div>Live</div>
+</div>
+
+<script>
+// ── DATA ──
+var MKTS=[
+  {sym:'CLD',name:'Claude',pair:'CLD/USDC',price:0.004218,chg:2.34,vol:'$2.14M',mc:'$14.2M',ic:'i-cld',ab:'CL',net:'Ethereum L1'},
+  {sym:'GPT',name:'ChatGPT',pair:'GPT/USDC',price:3.695,chg:-0.87,vol:'$9.21M',mc:'$184M',ic:'i-gpt',ab:'GP',net:'Ethereum L1'},
+  {sym:'GEM',name:'Gemini',pair:'GEM/USDC',price:1.243,chg:1.12,vol:'$4.30M',mc:'$62.1M',ic:'i-gem',ab:'GM',net:'Arbitrum'},
+  {sym:'LLM',name:'LLaMA',pair:'LLM/USDC',price:0.0891,chg:5.44,vol:'$1.87M',mc:'$8.9M',ic:'i-llm',ab:'LA',net:'Base'},
+  {sym:'MST',name:'Mistral',pair:'MST/USDC',price:0.2134,chg:-2.19,vol:'$0.92M',mc:'$4.3M',ic:'i-mst',ab:'MS',net:'Solana'},
+  {sym:'PXL',name:'Perplexity',pair:'PXL/USDC',price:0.6712,chg:0.33,vol:'$1.44M',mc:'$33.6M',ic:'i-pxl',ab:'PX',net:'Ethereum L1'},
+  {sym:'COH',name:'Cohere',pair:'COH/USDC',price:0.0341,chg:-0.88,vol:'$0.31M',mc:'$1.7M',ic:'i-coh',ab:'CO',net:'Avalanche'},
+];
+
+var NETWORKS_L1=[
+  {id:'eth',name:'Ethereum',sub:'Mainnet · EIP-4844',icon:'⟠',color:'#627eea',live:true,gas:'12 gwei'},
+  {id:'sol',name:'Solana',sub:'Mainnet Beta',icon:'◎',color:'#9945ff',live:true,gas:'~$0.001'},
+  {id:'avax',name:'Avalanche',sub:'C-Chain',icon:'▲',color:'#e84142',live:true,gas:'25 nAVAX'},
+  {id:'bnb',name:'BNB Chain',sub:'BSC Mainnet',icon:'◈',color:'#f3ba2f',live:true,gas:'3 gwei'},
+  {id:'dot',name:'Polkadot',sub:'Relay Chain',icon:'●',color:'#e6007a',live:false,gas:'~$0.01'},
+];
+var NETWORKS_L2=[
+  {id:'arb',name:'Arbitrum One',sub:'Nitro · ~0.2s finality',icon:'🔵',color:'#28a0f0',live:true,gas:'0.1 gwei'},
+  {id:'base',name:'Base',sub:'Coinbase L2 · OP Stack',icon:'🔷',color:'#0052ff',live:true,gas:'0.05 gwei'},
+  {id:'op',name:'Optimism',sub:'OP Mainnet',icon:'🔴',color:'#ff0420',live:true,gas:'0.05 gwei'},
+  {id:'zk',name:'zkSync Era',sub:'ZK-rollup · Boojum',icon:'⚡',color:'#8c8dfc',live:true,gas:'0.25 gwei'},
+  {id:'poly',name:'Polygon zkEVM',sub:'ZK-rollup',icon:'🟣',color:'#8247e5',live:true,gas:'0.1 gwei'},
+  {id:'scroll',name:'Scroll',sub:'ZK-EVM Type 1',icon:'📜',color:'#e4b45a',live:false,gas:'0.1 gwei'},
+];
+
+var WALLETS_EVM=[
+  {id:'mm',name:'MetaMask',icon:'🦊',sub:'Browser extension'},
+  {id:'wc',name:'WalletConnect',icon:'🔗',sub:'Any EVM wallet'},
+  {id:'cb',name:'Coinbase Wallet',icon:'🔵',sub:'Coinbase'},
+  {id:'rb',name:'Rainbow',icon:'🌈',sub:'Ethereum & L2s'},
+  {id:'ra',name:'Rabby',icon:'🐰',sub:'Multi-chain'},
+  {id:'lg',name:'Ledger',icon:'🔐',sub:'Hardware wallet'},
+];
+var WALLETS_SOL=[
+  {id:'ph',name:'Phantom',icon:'👻',sub:'Solana & EVM'},
+  {id:'sf',name:'Solflare',icon:'🌟',sub:'Solana native'},
+  {id:'bp',name:'Backpack',icon:'🎒',sub:'xNFT wallet'},
+  {id:'gw',name:'Glow',icon:'✨',sub:'Solana'},
+];
+
+var activeNet='eth';
+var activeNetName='Ethereum L1';
+var connectedWallet=null;
+var perpDir='long';
+var side='buy';
+var redeemTarget='anthropic';
+var redeemStep=0;
+
+// ── BUILD SIDEBAR ──
+function buildSidebar(filter) {
+  var el=document.getElementById('mktList');
+  var html='';
+  MKTS.forEach(function(m,i) {
+    if(filter && m.name.toLowerCase().indexOf(filter.toLowerCase())<0 && m.sym.toLowerCase().indexOf(filter.toLowerCase())<0) return;
+    var up=m.chg>=0;
+    var pr=m.price<0.01?m.price.toFixed(6):m.price.toFixed(4);
+    html+='<div class="mr'+(i===0?' sel':'')+'" onclick="selectMkt(this)">'
+      +'<div class="mi '+m.ic+'">'+m.ab+'</div>'
+      +'<div><div class="mn">'+m.name+'</div><div class="mp">'+m.pair+'</div></div>'
+      +'<div class="mr-r"><div class="mrp">$'+pr+'</div><div class="mrc '+(up?'up':'dn')+'">'+(up?'+':'')+m.chg.toFixed(2)+'%</div></div>'
+      +'</div>';
+  });
+  el.innerHTML=html;
+}
+buildSidebar();
+
+function filterMkts(v) { buildSidebar(v); }
+function selectMkt(el) { document.querySelectorAll('.mr').forEach(function(r){r.classList.remove('sel');}); el.classList.add('sel'); }
+function sbTab(el) { document.querySelectorAll('.sbt').forEach(function(b){b.classList.remove('act');}); el.classList.add('act'); }
+
+// ── TICKER ──
+function buildTicker() {
+  var items=MKTS.concat(MKTS);
+  var html=items.map(function(m) {
+    var up=m.chg>=0;
+    var pr=m.price<0.01?m.price.toFixed(6):m.price.toFixed(4);
+    return '<div class="ti"><span class="ts">'+m.pair+'</span><span class="tp">$'+pr+'</span><span class="'+(up?'up':'dn')+'">'+(up?'+':'')+m.chg.toFixed(2)+'%</span></div>';
+  }).join('');
+  document.getElementById('tickWrap').innerHTML=html;
+}
+buildTicker();
+
+// ── MARKET CARDS ──
+function buildMktCards() {
+  var el=document.getElementById('mktCards');
+  if(!el) return;
+  el.innerHTML=MKTS.map(function(m) {
+    var up=m.chg>=0;
+    var pr=m.price<0.01?m.price.toFixed(6):m.price.toFixed(4);
+    return '<div class="mkt-card" onclick="goTrade()">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">'
+      +'<div class="mi '+m.ic+'" style="width:36px;height:36px;border-radius:9px;font-size:12px">'+m.ab+'</div>'
+      +'<div><div style="font-size:14px;font-weight:600">'+m.name+'</div><div style="font-size:11px;color:var(--t2);font-family:var(--mono)">'+m.pair+'</div></div>'
+      +'<div style="margin-left:auto;text-align:right"><div style="font-family:var(--mono);font-size:15px;font-weight:700">$'+pr+'</div>'
+      +'<div style="font-size:12px;color:'+(up?'var(--gr)':'var(--re)')+'}">'+(up?'+':'')+m.chg.toFixed(2)+'%</div></div></div>'
+      +'<div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--b1);font-size:11px;color:var(--t2)">'
+      +'<span>Vol: <span style="color:var(--t1)">'+m.vol+'</span></span>'
+      +'<span>MCap: <span style="color:var(--t1)">'+m.mc+'</span></span>'
+      +'<span style="color:var(--t3)">'+m.net+'</span></div></div>';
+  }).join('');
+}
+buildMktCards();
+
+function goTrade() { showPage('trade', document.querySelector('.nl')); }
+
+// ── EARN CARDS ──
+function buildEarn() {
+  var el=document.getElementById('earnCards');
+  if(!el) return;
+  var pools=[
+    {pair:'CLD/USDC',apy:'42.3%',tvl:'$1.84M',fee:'0.30%',ic1:'i-cld',a1:'CL',ic2:'i-coh',a2:'UC',col:'var(--gr)'},
+    {pair:'GPT/USDC',apy:'18.7%',tvl:'$6.21M',fee:'0.30%',ic1:'i-gpt',a1:'GP',ic2:'i-coh',a2:'UC',col:'var(--gr)'},
+    {pair:'GPT/CLD',apy:'67.4%',tvl:'$0.93M',fee:'0.60%',ic1:'i-gpt',a1:'GP',ic2:'i-cld',a2:'CL',col:'var(--am)'},
+    {pair:'GEM/USDC',apy:'29.1%',tvl:'$3.10M',fee:'0.30%',ic1:'i-gem',a1:'GM',ic2:'i-coh',a2:'UC',col:'var(--gr)'},
+    {pair:'LLM/USDC',apy:'88.5%',tvl:'$0.47M',fee:'0.60%',ic1:'i-llm',a1:'LA',ic2:'i-coh',a2:'UC',col:'var(--am)'},
+    {pair:'MST/CLD',apy:'114.2%',tvl:'$0.22M',fee:'1.00%',ic1:'i-mst',a1:'MS',ic2:'i-cld',a2:'CL',col:'var(--re)'},
+  ];
+  el.innerHTML=pools.map(function(p) {
+    return '<div class="pool-card">'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+      +'<div style="display:flex"><div class="mi '+p.ic1+'" style="width:28px;height:28px;border-radius:7px;font-size:10px">'+p.a1+'</div>'
+      +'<div class="mi '+p.ic2+'" style="width:28px;height:28px;border-radius:7px;font-size:10px;margin-left:-6px;border:2px solid var(--bg2)">'+p.a2+'</div></div>'
+      +'<span style="font-size:14px;font-weight:600;font-family:var(--mono)">'+p.pair+'</span>'
+      +'<span style="margin-left:auto;background:var(--gr3);color:'+p.col+';padding:3px 8px;border-radius:4px;font-size:12px;font-family:var(--mono);font-weight:700">'+p.apy+' APY</span></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;color:var(--t2);margin-bottom:12px">'
+      +'<span>TVL: <span style="color:var(--t0)">'+p.tvl+'</span></span>'
+      +'<span>Fee Tier: <span style="color:var(--t0)">'+p.fee+'</span></span></div>'
+      +'<button style="width:100%;padding:9px;border-radius:7px;background:var(--gr2);border:none;color:#000;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans)" onclick="showToast(\'Add liquidity — coming soon. PromptAMM v2 launching with concentrated liquidity.\',\'green\')">Add Liquidity</button>'
+      +'</div>';
+  }).join('');
+}
+buildEarn();
+
+// ── CHART ──
+var priceData=[];
+var p=0.004218*0.96;
+for(var i=0;i<121;i++){p*=(1+(Math.random()-.495)*.012);priceData.push(p);}
+priceData[priceData.length-1]=0.004218;
+
+var ctx=document.getElementById('priceChart').getContext('2d');
+var theChart=new Chart(ctx,{
+  type:'line',
+  data:{
+    labels:priceData.map(function(){return '';}),
+    datasets:[{
+      data:priceData,
+      borderColor:'#05d394',borderWidth:1.5,pointRadius:0,fill:true,tension:.3,
+      backgroundColor:function(c){
+        var ch=c.chart,ca=ch.chartArea;
+        if(!ca)return'transparent';
+        var g=ch.ctx.createLinearGradient(0,ca.top,0,ca.bottom);
+        g.addColorStop(0,'rgba(5,211,148,.15)');g.addColorStop(1,'rgba(5,211,148,0)');return g;
+      }
+    }]
+  },
+  options:{
+    responsive:true,maintainAspectRatio:false,animation:false,
+    plugins:{legend:{display:false},tooltip:{
+      backgroundColor:'#181c28',borderColor:'#2d3452',borderWidth:1,
+      bodyFont:{family:'Space Mono',size:11},
+      callbacks:{label:function(c){return'$'+c.parsed.y.toFixed(6);},title:function(){return'';}}
+    }},
+    scales:{
+      x:{display:false},
+      y:{display:true,position:'right',grid:{color:'#12151f'},
+        ticks:{color:'#5a6385',font:{family:'Space Mono',size:10},callback:function(v){return'$'+v.toFixed(4);}}}
+    },
+    interaction:{mode:'index',intersect:false}
+  }
+});
+
+setInterval(function(){
+  var last=priceData[priceData.length-1];
+  var np=last*(1+(Math.random()-.495)*.008);
+  priceData.shift();priceData.push(np);
+  theChart.data.datasets[0].data=priceData.slice();
+  theChart.update('none');
+  document.getElementById('phPrice').textContent='$'+np.toFixed(6);
+},1800);
+
+setTimeout(function(){theChart.resize();},100);
+window.addEventListener('resize',function(){theChart.resize();});
+
+// ── ORDER BOOK ──
+var ASK=[.004248,.004261,.004274,.004290,.004305,.004318,.004332];
+var BID=[.004207,.004195,.004183,.004170,.004158,.004146,.004133];
+function buildOB(){
+  var askEl=document.getElementById('askRows');
+  var bidEl=document.getElementById('bidRows');
+  if(!askEl||!bidEl)return;
+  var mx=4000;
+  var ah='',bh='';
+  ASK.slice().reverse().forEach(function(pr){
+    var sz=Math.floor(Math.random()*3800+150);
+    var tot=(pr*sz).toFixed(2);
+    var w=Math.min(90,(sz/mx)*85);
+    ah+='<div class="obr ask"><span>$'+pr.toFixed(6)+'</span><span>'+sz.toLocaleString()+'</span><span>'+parseFloat(tot).toLocaleString()+'</span><div class="obf" style="width:'+w+'%"></div></div>';
+  });
+  BID.forEach(function(pr){
+    var sz=Math.floor(Math.random()*3800+150);
+    var tot=(pr*sz).toFixed(2);
+    var w=Math.min(90,(sz/mx)*85);
+    bh+='<div class="obr bid"><span>$'+pr.toFixed(6)+'</span><span>'+sz.toLocaleString()+'</span><span>'+parseFloat(tot).toLocaleString()+'</span><div class="obf" style="width:'+w+'%"></div></div>';
+  });
+  askEl.innerHTML=ah;bidEl.innerHTML=bh;
+}
+buildOB();setInterval(buildOB,3000);
+
+// ── RECENT TRADES ──
+function buildTrades(){
+  var el=document.getElementById('tradeRows');
+  if(!el)return;
+  var now=new Date(),html='';
+  for(var i=0;i<14;i++){
+    var buy=(i%3!==1);
+    var pr=(.004218*(1+(Math.random()-.5)*.003)).toFixed(6);
+    var sz=Math.floor(Math.random()*25000+500).toLocaleString();
+    var t=new Date(now-i*8000);
+    var ts=('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2)+':'+('0'+t.getSeconds()).slice(-2);
+    html+='<div class="tr"><span class="'+(buy?'up':'dn')+'">$'+pr+'</span><span>'+sz+'</span><span>'+ts+'</span></div>';
+  }
+  el.innerHTML=html;
+}
+buildTrades();setInterval(buildTrades,2000);
+
+// ── BLOCK NUM ──
+setInterval(function(){
+  var el=document.getElementById('blockNum');
+  if(el)el.textContent=(parseInt(el.textContent.replace(/,/g,''))+1).toLocaleString();
+},12000);
+
+// ── SPOT FORM ──
+function setSide(s){
+  side=s;
+  document.getElementById('buyBtn').className='bsb buy'+(s==='buy'?' act':'');
+  document.getElementById('sellBtn').className='bsb sell'+(s==='sell'?' act':'');
+  var btn=document.getElementById('spotBtn');
+  btn.className='sub-btn '+(s==='buy'?'sub-buy':'sub-sell');
+  btn.textContent=(s==='buy'?'Buy':'Sell')+' CLD';
+  updateSum();
+}
+function fillMkt(){document.getElementById('lPrice').value='0.004218';updateSum();}
+function setMax(){document.getElementById('tAmt').value='50000';updateSum();}
+function setPct(p){document.getElementById('tAmt').value=Math.floor(50000*p/100);updateSum();}
+function updateSum(){
+  var pr=parseFloat(document.getElementById('lPrice').value)||.004218;
+  var am=parseFloat(document.getElementById('tAmt').value)||0;
+  document.getElementById('osTotal').textContent='$'+(pr*am).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+' USDC';
+}
+updateSum();
+
+function submitSpot(){
+  var btn=document.getElementById('spotBtn');
+  var orig=btn.textContent;
+  btn.textContent='Signing tx…';btn.style.opacity='.6';
+  setTimeout(function(){
+    btn.textContent='✓ Order Submitted';btn.style.background='var(--gr2)';btn.style.color='#000';
+    setTimeout(function(){btn.textContent=orig;btn.style.opacity='';btn.style.background='';btn.style.color='';btn.className='sub-btn '+(side==='buy'?'sub-buy':'sub-sell');},1500);
+  },900);
+}
+
+// ── SWAP ──
+function calcSwap(){
+  var v=parseFloat(document.getElementById('swpFrom').value)||0;
+  document.getElementById('swpTo').textContent=Math.round(v*874.6).toLocaleString();
+}
+function flipSwap(){
+  var f=document.getElementById('swpFrom').value;
+  document.getElementById('swpFrom').value=Math.round(parseFloat(f||0)*874.6);
+  calcSwap();
+}
+function submitSwap(btn){
+  btn.textContent='Approving…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Swap Complete';btn.style.opacity='';},1000);
+}
+
+// ── PERPS ──
+function setDir(d){
+  perpDir=d;
+  document.getElementById('longBtn').className='bsb buy'+(d==='long'?' act':'');
+  document.getElementById('shortBtn').className='bsb sell'+(d==='short'?' act':'');
+  updPerp();
+}
+function updPerp(){
+  var lev=parseInt(document.getElementById('levSlider').value);
+  var col=parseFloat(document.getElementById('pCol').value)||0;
+  document.getElementById('levVal').textContent=lev+'×';
+  var pos='$'+(col*lev).toLocaleString();
+  document.getElementById('pSz').textContent=pos;
+  document.getElementById('pNot').textContent=pos;
+  var btn=document.getElementById('perpBtn');
+  btn.textContent=(perpDir==='long'?'Open Long · ':'Open Short · ')+lev+'×';
+  btn.className='sub-btn '+(perpDir==='long'?'sub-buy':'sub-sell');
+}
+function submitPerp(btn){
+  var orig=btn.textContent;
+  btn.textContent='Opening…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Position Opened';
+  setTimeout(function(){btn.textContent=orig;btn.style.opacity='';},1500);},900);
+}
+
+// ── FAQ ──
+var FAQS=[
+  {q:'Are these tokens actually redeemable today?',a:'Not yet — PROMPTEX is currently a UI preview / proof of concept. The Redemption Agent system and smart contracts are in development. When live, tokens will be redeemable 1:1 for API credits at market rates via the agent mechanism.'},
+  {q:'How is the token price determined?',a:'Token prices float on open market supply and demand, similar to any commodity. The underlying value is anchored to the cost of real AI compute credits, but market expectations about future pricing, model quality, and provider competition will cause tokens to trade at premiums or discounts.'},
+  {q:"Won't OpenAI / Anthropic just shut this down?",a:"PROMPTEX does not require cooperation from AI providers. The Redemption Agent uses normal API billing calls — providers see a customer buying credits, nothing more. The exchange layer is entirely separate. That said, enterprise API agreements may have terms around resale; users should review their contracts."},
+  {q:'What stops someone from manipulating the token price?',a:'The same mechanisms that prevent it in any liquid market: deep order books, decentralized liquidity provision, and on-chain transparency. As volume grows, manipulation becomes prohibitively expensive. Oracle price feeds (Chainlink + Pyth) also anchor prices to observable real-world rates.'},
+  {q:'How does the hedge actually work for an enterprise?',a:'Example: Your company has a $1M/yr OpenAI contract. You open a $1M short on GPT perpetuals at 1x leverage. If OpenAI raises prices 20%, your contract costs $200K more — but your short profits $200K, netting to zero. You have capped your AI cost at today\'s rate, just like an airline hedging jet fuel.'},
+  {q:'Is PROMPTEX audited and secure?',a:'Smart contract audits are planned before any mainnet launch. All contracts will be open-source and verified on Etherscan. The Redemption Agent operates with strictly scoped permissions — it can only trigger credit purchases on your linked AI account, nothing else.'},
+];
+function buildFaq(){
+  var el=document.getElementById('faqList');
+  if(!el||el.innerHTML!=='')return;
+  el.innerHTML=FAQS.map(function(f,i){
+    return '<div style="border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-bottom:8px">'
+      +'<div onclick="toggleFaq('+i+')" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--bg2)" onmouseover="this.style.background=\'var(--bg3)\'" onmouseout="this.style.background=\'var(--bg2)\'">'
+      +'<span style="font-size:13px;font-weight:500">'+f.q+'</span>'
+      +'<span id="faq-arrow-'+i+'" style="color:var(--t2);font-size:16px;display:inline-block">+</span></div>'
+      +'<div id="faq-body-'+i+'" style="display:none;padding:14px 16px;font-size:12px;color:var(--t2);line-height:1.8;background:var(--bg3);border-top:1px solid var(--b1)">'+f.a+'</div>'
+      +'</div>';
+  }).join('');
+}
+function toggleFaq(i){
+  var body=document.getElementById('faq-body-'+i);
+  var arrow=document.getElementById('faq-arrow-'+i);
+  if(!body)return;
+  var open=body.style.display==='block';
+  body.style.display=open?'none':'block';
+  arrow.textContent=open?'+':'−';
+}
+
+// ── MODE / LANDING ──
+var currentMode = '';
+function enterMode(mode) {
+  currentMode = mode;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('nav').style.display = 'flex';
+  document.getElementById('ticker').style.display = 'flex';
+  document.getElementById('retailNav').style.display = mode === 'retail' ? 'flex' : 'none';
+  document.getElementById('enterpriseNav').style.display = mode === 'enterprise' ? 'flex' : 'none';
+  document.getElementById('mobileRetailNav').style.display = mode === 'retail' ? 'block' : 'none';
+  document.getElementById('mobileEnterpriseNav').style.display = mode === 'enterprise' ? 'block' : 'none';
+  document.getElementById('modeLabel').textContent = mode.toUpperCase();
+  document.getElementById('modeLabel').style.color = mode === 'enterprise' ? 'var(--am)' : 'var(--gr)';
+  // Show trade page by default
+  showPage('trade', document.querySelector('#' + mode + 'Nav .nl'));
+  buildTicker();
+  setTimeout(function(){if(theChart)theChart.resize();}, 100);
+}
+function goLanding(e) {
+  if(e) e.preventDefault();
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('ticker').style.display = 'none';
+  document.getElementById('trade-page').style.display = 'none';
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('act');});
+  closeMobileNav();
+}
+
+// ── PAGE NAV ──
+function showPage(page, btn) {
+  document.getElementById('trade-page').style.display='none';
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('act');});
+  document.querySelectorAll('.nl').forEach(function(b){b.classList.remove('act');});
+  if(btn) btn.classList.add('act');
+  if(page==='trade'){
+    document.getElementById('trade-page').style.display='grid';
+    setTimeout(function(){if(theChart)theChart.resize();},50);
+  } else {
+    var el=document.getElementById(page+'-page');
+    if(el) el.classList.add('act');
+    if(page==='docs') buildFaq();
+  }
+}
+
+function setTf(el){document.querySelectorAll('.tf').forEach(function(b){b.classList.remove('act');});el.classList.add('act');}
+
+function rpTab(tab, btn) {
+  document.querySelectorAll('.rpt').forEach(function(b){b.classList.remove('act');});
+  btn.classList.add('act');
+  document.querySelectorAll('.rp-sec').forEach(function(s){s.classList.remove('act');});
+  document.getElementById('sec-'+tab).classList.add('act');
+}
+function submitRetailUtilize(btn) {
+  var prompt = document.getElementById('retailPrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first','green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('retailUtilResponse');
+    var txt = document.getElementById('retailUtilText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'Simulated response via PROMPTEX P2P routing. Your prompt was forwarded through an encrypted proxy to another user\'s deposited API credits — their key was never visible to you or stored by PROMPTEX. Token cost deducted from your portfolio.';
+  }, 1400);
+}
+
+// ── NETWORK SWITCHER ──
+function buildNetModal(){
+  var body=document.getElementById('netModalBody');
+  var html='<div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:4px 8px 8px">Layer 1 Networks</div>';
+  NETWORKS_L1.forEach(function(n){html+=makeNetRow(n);});
+  html+='<div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:12px 8px 8px">Layer 2 / Rollups</div>';
+  NETWORKS_L2.forEach(function(n){html+=makeNetRow(n);});
+  body.innerHTML=html;
+}
+function makeNetRow(n){
+  var isActive=activeNet===n.id;
+  var bdg=isActive?'<span class="nbg nb-on">Connected</span>':n.live?'<span class="nbg nb-live">Live</span>':'<span class="nbg nb-soon">Soon</span>';
+  var click=(!n.live)?'':'onclick="switchNet(\''+n.id+'\',\''+n.name+'\')"';
+  return '<div class="nr'+(isActive?' anr':'')+(n.live?'':'" style="opacity:.5;cursor:not-allowed')+'" '+click+'>'
+    +'<div class="ni" style="background:'+n.color+'22;border:1px solid '+n.color+'44">'+n.icon+'</div>'
+    +'<div><div class="nn">'+n.name+(isActive?' ✓':'')+'</div><div class="ns">'+n.sub+' · '+n.gas+'</div></div>'
+    +bdg+'</div>';
+}
+function toggleNetDD(){
+  buildNetModal();
+  document.getElementById('netModal').classList.toggle('open');
+}
+function closeNet(){document.getElementById('netModal').classList.remove('open');}
+function switchNet(id,name){
+  activeNet=id;
+  var lbl=name+(id==='eth'?' L1':id==='sol'?' Mainnet':id==='arb'?' One':id==='base'?' Chain':'');
+  activeNetName=lbl;
+  document.getElementById('chainName').textContent=lbl;
+  document.getElementById('walletSubLbl').innerHTML='Connecting to: <span style="color:var(--cy)">'+lbl+'</span>';
+  document.getElementById('settlNet').textContent=lbl;
+  closeNet();
+  showToast('Switched to '+lbl,'green');
+}
+
+// ── WALLET MODAL ──
+function buildWalletGrid(){
+  var isSol=(activeNet==='sol');
+  var wallets=isSol?WALLETS_SOL:WALLETS_EVM;
+  var html=wallets.map(function(w){
+    return '<div class="wc" onclick="connectWallet(\''+w.id+'\',\''+w.name+'\',\''+w.icon+'\')">'
+      +'<div class="wi">'+w.icon+'</div>'
+      +'<div class="wn">'+w.name+'</div>'
+      +'<div class="wsub">'+w.sub+'</div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('walletGrid').innerHTML=html;
+  document.getElementById('walletGrid').style.display='grid';
+  document.getElementById('walletConn').style.display='none';
+}
+function openWallet(){
+  document.getElementById('walletSubLbl').innerHTML='Connecting to: <span style="color:var(--cy)">'+activeNetName+'</span>';
+  buildWalletGrid();
+  document.getElementById('walletModal').classList.add('open');
+}
+function closeWallet(){document.getElementById('walletModal').classList.remove('open');}
+function connectWallet(id,name,icon){
+  document.getElementById('walletGrid').style.display='none';
+  var conn=document.getElementById('walletConn');
+  conn.style.display='block';
+  document.getElementById('wConnIco').textContent=icon;
+  document.getElementById('wConnName').textContent=name;
+  setTimeout(function(){
+    connectedWallet={id:id,name:name};
+    closeWallet();
+    var btn=document.getElementById('connBtn');
+    btn.textContent='0x3f…a8c2';
+    btn.style.background='var(--bg5)';
+    btn.style.color='var(--t0)';
+    btn.style.border='1px solid var(--b2)';
+    btn.style.borderRadius='8px';
+    showToast(name+' connected on '+activeNetName,'green');
+  },1400);
+}
+
+// ── TESTNET ──
+function toggleTestnet(btn){
+  var on=btn.textContent==='Testnet';
+  btn.textContent=on?'Mainnet':'Testnet';
+  btn.style.color=on?'var(--am)':'';
+  btn.style.borderColor=on?'var(--am)':'';
+  showToast(on?'Switched to Testnet mode':'Back to Mainnet','green');
+}
+
+// ── AI LINK MODAL ──
+var AI_PROVS=[
+  {id:'anthropic',name:'Anthropic / Claude',icon:'🟠',col:'#d4825a',url:'console.anthropic.com',linked:true},
+  {id:'openai',name:'OpenAI / ChatGPT',icon:'🟢',col:'#05d394',url:'platform.openai.com',linked:true},
+  {id:'google',name:'Google / Gemini',icon:'🔵',col:'#7eb8ff',url:'aistudio.google.com',linked:false},
+  {id:'mistral',name:'Mistral AI',icon:'🔴',col:'#e090b4',url:'console.mistral.ai',linked:false},
+  {id:'meta',name:'Meta / LLaMA',icon:'🟡',col:'#f7b731',url:'llama.meta.com',linked:false},
+  {id:'cohere',name:'Cohere',icon:'🩵',col:'#8ad4ee',url:'dashboard.cohere.com',linked:false},
+];
+function openAiLink(){
+  var html='<div style="font-size:12px;color:var(--t1);line-height:1.6;margin-bottom:14px">Link your AI provider accounts so the Redemption Agent can purchase credits on your behalf when you redeem tokens.</div>'
+    +'<div class="notice">🔐 <b style="color:var(--t0)">How it works:</b> You provide a scoped API key (<span style="font-family:var(--mono);color:var(--cy)">billing.credits:write</span> only). The agent never sees your credentials. Keys are stored encrypted and only used during redemption.</div>';
+  AI_PROVS.forEach(function(p){
+    html+='<div class="ai-card'+(p.linked?' linked':'')+'" onclick="showLinkForm(\''+p.id+'\')">'
+      +'<div class="aic-ic" style="background:'+p.col+'22;border:1px solid '+p.col+'44">'+p.icon+'</div>'
+      +'<div><div class="aic-n">'+p.name+'</div><div class="aic-s">'+(p.linked?'✓ Linked · Agent authorized':'Not linked · '+p.url)+'</div></div>'
+      +'<span class="aic-b '+(p.linked?'lb-linked':'lb-link')+'">'+(p.linked?'Linked':'+ Link')+'</span>'
+      +'</div>';
+  });
+  html+='<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);font-size:11px;color:var(--t2);line-height:1.6"><b style="color:var(--t1)">Enterprise coming soon:</b> OAuth2 org-level tokens, batch credit purchasing, multi-seat management, and per-department spending limits.</div>';
+  document.getElementById('aiModalBody').innerHTML=html;
+  document.getElementById('aiModal').classList.add('open');
+}
+function closeAi(){document.getElementById('aiModal').classList.remove('open');}
+function showLinkForm(pid){
+  var p=AI_PROVS.find(function(x){return x.id===pid;});
+  if(!p)return;
+  var html='<button onclick="openAiLink()" style="background:none;border:none;color:var(--bl);cursor:pointer;font-size:12px;margin-bottom:16px;padding:0;font-family:var(--sans)">← Back</button>'
+    +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">'
+    +'<div class="aic-ic" style="width:44px;height:44px;background:'+p.col+'22;border:1px solid '+p.col+'44;font-size:22px;border-radius:11px;display:flex;align-items:center;justify-content:center">'+p.icon+'</div>'
+    +'<div><div style="font-size:15px;font-weight:600">'+p.name+'</div><div style="font-size:11px;color:var(--t2)">'+p.url+'</div></div></div>'
+    +'<div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Step 1 — Get your scoped API key</div>'
+    +'<div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:14px;font-size:11px;color:var(--t2);line-height:1.8">'
+    +'1. Visit <span style="color:var(--bl)">'+p.url+'</span><br>'
+    +'2. API Keys → Create new key<br>'
+    +'3. Set scope: <span style="font-family:var(--mono);color:var(--cy)">billing.credits:write</span> only<br>'
+    +'4. Paste below</div>'
+    +'<div style="font-size:11px;font-weight:600;color:var(--t1);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Step 2 — Paste API key</div>'
+    +'<div style="position:relative;margin-bottom:14px">'
+    +'<input id="apiKeyInp" type="password" placeholder="sk-…" style="width:100%;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;color:var(--t0);padding:10px 40px 10px 12px;font-family:var(--mono);font-size:12px;outline:none">'
+    +'<button onclick="document.getElementById(\'apiKeyInp\').type=document.getElementById(\'apiKeyInp\').type===\'password\'?\'text\':\'password\'" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t2);cursor:pointer">👁</button></div>'
+    +'<button onclick="submitLink(\''+pid+'\')" style="width:100%;padding:12px;border-radius:9px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Authorize Agent for '+p.name+'</button>';
+  document.getElementById('aiModalBody').innerHTML=html;
+}
+function submitLink(pid){
+  var p=AI_PROVS.find(function(x){return x.id===pid;});
+  var btn=event.currentTarget;
+  btn.textContent='Verifying…';btn.style.opacity='.6';
+  setTimeout(function(){
+    if(p)p.linked=true;
+    btn.textContent='✓ Linked!';
+    setTimeout(function(){closeAi();showToast(p.name+' linked. Redemption Agent authorized.','green');},1000);
+  },1200);
+}
+
+// ── REDEEM MODAL ──
+function openRedeem(target){
+  redeemTarget=target;
+  redeemStep=0;
+  renderRedeem();
+  document.getElementById('redeemModal').classList.add('open');
+}
+function closeRedeem(){document.getElementById('redeemModal').classList.remove('open');}
+function renderRedeem(){
+  var body=document.getElementById('redeemBody');
+  var isA=redeemTarget==='anthropic';
+  var pname=isA?'Anthropic / Claude':'OpenAI / ChatGPT';
+  var sym=isA?'CLD':'GPT';
+  var tprice=isA?0.004218:3.695;
+  var defAmt=isA?5000:50;
+
+  if(redeemStep===0){
+    body.innerHTML='<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:20px">'+(isA?'🟠':'🟢')+'</span>'
+      +'<div><div style="font-size:13px;font-weight:600">'+pname+'</div><div style="font-size:11px;color:var(--t2)">Balance: '+(isA?'$84.20':'$212.00')+' · Agent: Active</div></div></div>'
+      +'<div class="fg"><div class="fl">Tokens to redeem <span class="fa">Wallet: '+(isA?'3.4M':'4,200')+' '+sym+'</span></div>'
+      +'<div class="fw"><input class="fi" type="number" id="rdmAmt" value="'+defAmt+'" oninput="updRedeem('+tprice+')">'
+      +'<div class="fsfx">'+sym+'</div></div></div>'
+      +'<div class="pct-r" style="margin-bottom:14px">'
+      +'<div class="pct-b" onclick="setRdmPct(25,'+(isA?3400000:4200)+','+tprice+')">25%</div>'
+      +'<div class="pct-b" onclick="setRdmPct(50,'+(isA?3400000:4200)+','+tprice+')">50%</div>'
+      +'<div class="pct-b" onclick="setRdmPct(75,'+(isA?3400000:4200)+','+tprice+')">75%</div>'
+      +'<div class="pct-b" onclick="setRdmPct(100,'+(isA?3400000:4200)+','+tprice+')">Max</div></div>'
+      +'<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:14px;font-family:var(--mono);font-size:11px">'
+      +'<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Sell '+defAmt+' '+sym+' @ market</span><span id="rdmSell">$'+(defAmt*tprice).toFixed(2)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Slippage est.</span><span class="up">~0.12%</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--t2)">Agent fee</span><span>0.25%</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--b1);margin-top:4px;font-weight:700"><span style="color:var(--t1)">Credits added to '+pname+'</span><span class="up" id="rdmNet">+$'+(defAmt*tprice*0.9975).toFixed(2)+'</span></div></div>'
+      +'<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:14px">'
+      +'<div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Agent execution steps</div>'
+      +'<div class="flow-step"><div class="fnum">1</div><div class="ftxt"><b>Wallet approval</b> — Sign token approval tx for agent contract</div></div>'
+      +'<div class="flow-step"><div class="fnum">2</div><div class="ftxt"><b>Agent liquidates</b> — Sells '+sym+' on PROMPTEX spot market</div></div>'
+      +'<div class="flow-step"><div class="fnum">3</div><div class="ftxt"><b>USDC settlement</b> — Proceeds held in audited escrow contract</div></div>'
+      +'<div class="flow-step"><div class="fnum">4</div><div class="ftxt"><b>API credit purchase</b> — Agent calls '+pname+' billing API</div></div>'
+      +'<div class="flow-step" style="border-bottom:none"><div class="fnum">5</div><div class="ftxt"><b>Confirmation</b> — On-chain receipt + email sent</div></div></div>'
+      +'<button onclick="startRedeem()" style="width:100%;padding:12px;border-radius:9px;background:var(--cy);border:none;color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">Review & Authorize →</button>';
+  } else if(redeemStep===1){
+    var defAmt2=isA?5000:50;
+    body.innerHTML='<div style="text-align:center;padding:10px 0 16px">'
+      +'<div style="font-size:36px;margin-bottom:10px">🤖</div>'
+      +'<div style="font-size:14px;font-weight:600;margin-bottom:6px">Redemption Agent Running</div>'
+      +'<div style="font-size:12px;color:var(--t2)">Do not close this window</div></div>'
+      +'<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:12px;margin-bottom:12px">'
+      +'<div class="flow-step" id="rs1"><div class="fnum done">✓</div><div class="ftxt"><b>Wallet signed</b> — Approval tx confirmed</div></div>'
+      +'<div class="flow-step" id="rs2"><div class="fnum run">2</div><div class="ftxt"><b>Liquidating…</b> — Selling '+sym+' on spot market</div></div>'
+      +'<div class="flow-step" id="rs3"><div class="fnum">3</div><div class="ftxt"><b>USDC settlement</b> — Pending</div></div>'
+      +'<div class="flow-step" id="rs4"><div class="fnum">4</div><div class="ftxt"><b>API credit purchase</b> — Pending</div></div>'
+      +'<div class="flow-step" style="border-bottom:none" id="rs5"><div class="fnum">5</div><div class="ftxt"><b>Confirmation</b> — Pending</div></div></div>'
+      +'<div style="height:4px;background:var(--bg4);border-radius:2px;overflow:hidden"><div id="rdmBar" style="height:100%;background:var(--cy);border-radius:2px;width:22%;transition:width .8s ease"></div></div>';
+    var steps=[
+      {id:'rs2',pct:45,txt:'<b>Tokens sold</b> — Received $'+(defAmt2*tprice).toFixed(2)+' USDC'},
+      {id:'rs3',pct:65,txt:'<b>USDC settled</b> — In escrow contract'},
+      {id:'rs4',pct:85,txt:'<b>Credits purchased</b> — '+pname+' API called'},
+      {id:'rs5',pct:100,txt:'<b>Complete!</b> — Receipt recorded on-chain'},
+    ];
+    steps.forEach(function(s,i){
+      setTimeout(function(){
+        var prev=document.getElementById('rs'+(i+2));
+        if(prev){var n=prev.querySelector('.fnum');if(n){n.className='fnum done';n.textContent='✓';}}
+        var cur=document.getElementById(s.id);
+        if(cur){
+          var n=cur.querySelector('.fnum');
+          if(n){n.className=i===steps.length-1?'fnum done':'fnum run';n.textContent=i===steps.length-1?'✓':(i+3);}
+          cur.querySelector('.ftxt').innerHTML=s.txt;
+        }
+        var bar=document.getElementById('rdmBar');
+        if(bar)bar.style.width=s.pct+'%';
+        if(i===steps.length-1){setTimeout(function(){redeemStep=2;renderRedeem();},700);}
+      },(i+1)*1100);
+    });
+  } else {
+    var defAmt3=isA?5000:50;
+    body.innerHTML='<div style="text-align:center;padding:20px 0">'
+      +'<div style="font-size:52px;margin-bottom:12px">✅</div>'
+      +'<div style="font-size:16px;font-weight:700;color:var(--gr);margin-bottom:6px">Redemption Complete!</div>'
+      +'<div style="font-size:12px;color:var(--t2);margin-bottom:20px">Credits added to '+pname+'</div>'
+      +'<div style="background:var(--bg3);border:1px solid var(--b1);border-radius:10px;padding:14px;text-align:left;font-family:var(--mono);font-size:11px;margin-bottom:16px">'
+      +'<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">Tokens sold</span><span>'+defAmt3.toLocaleString()+' '+sym+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">USDC received</span><span>$'+(defAmt3*tprice).toFixed(2)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">Agent fee (0.25%)</span><span>-$'+(defAmt3*tprice*0.0025).toFixed(2)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:4px 0;border-top:1px solid var(--b1);margin-top:4px"><span style="color:var(--t1)">Credits added</span><span class="up" style="font-weight:700">+$'+(defAmt3*tprice*0.9975).toFixed(2)+'</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">Tx hash</span><span style="color:var(--bl)">0x7a3c…f291</span></div>'
+      +'<div style="display:flex;justify-content:space-between;padding:3px 0"><span style="color:var(--t2)">New AI balance</span><span>'+(isA?'$105.29':'$255.40')+'</span></div></div>'
+      +'<button onclick="closeRedeem()" style="width:100%;padding:11px;border-radius:8px;background:var(--gr2);border:none;color:#000;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans)">Done ✓</button></div>';
+  }
+}
+function setRdmPct(pct,max,tprice){
+  var inp=document.getElementById('rdmAmt');
+  if(inp){inp.value=Math.floor(max*pct/100);updRedeem(tprice);}
+}
+function updRedeem(tprice){
+  var inp=document.getElementById('rdmAmt');
+  if(!inp)return;
+  var amt=parseFloat(inp.value)||0;
+  var s=document.getElementById('rdmSell');
+  var n=document.getElementById('rdmNet');
+  if(s)s.textContent='$'+(amt*tprice).toFixed(2);
+  if(n)n.textContent='+$'+(amt*tprice*0.9975).toFixed(2);
+}
+function startRedeem(){redeemStep=1;renderRedeem();}
+
+// ── TOAST ──
+function showToast(msg,type){
+  var t=document.createElement('div');
+  t.className='toast';
+  var col=type==='green'?'var(--gr)':type==='amber'?'var(--am)':'var(--re)';
+  t.style.borderColor='rgba(5,211,148,.25)';
+  t.style.borderLeftColor=col;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove();},300);},2800);
+}
+
+function switchRetailTab(tab, btn) {
+  document.querySelectorAll('.retail-tab').forEach(function(b) {
+    b.style.background = 'none';
+    b.style.color = 'var(--t2)';
+  });
+  if(tab==='deposit') { btn.style.background='var(--bl2)'; btn.style.color='#fff'; }
+  else if(tab==='withdraw') { btn.style.background='var(--gr2)'; btn.style.color='#000'; }
+  else if(tab==='utilize') { btn.style.background='var(--pu)'; btn.style.color='#fff'; }
+  ['deposit','withdraw','utilize'].forEach(function(t) {
+    var el = document.getElementById('retailTab-' + t);
+    if(el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+function calcRetailWd() {
+  var amt = parseFloat(document.getElementById('retailWdAmt').value) || 0;
+  var net = document.getElementById('retailWdNet');
+  var rem = document.getElementById('retailWdRemain');
+  if(net) net.textContent = '$' + amt.toFixed(2) + ' USDC';
+  if(rem) rem.textContent = '$' + Math.max(0, 248.79 - amt).toFixed(2);
+}
+function submitRetailUtilize(btn) {
+  var prompt = document.getElementById('retailPrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first', 'green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('retailUtilResponse');
+    var txt = document.getElementById('retailUtilText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'Simulated response via PROMPTEX P2P routing. Your prompt was forwarded through an encrypted proxy to another user\'s deposited API credits — their key was never visible to you or stored by PROMPTEX. Token cost deducted from your portfolio.';
+  }, 1400);
+}
+
+// ── ENTERPRISE ──
+function switchEntTab(tab, btn) {
+  document.querySelectorAll('.ent-tab').forEach(function(b) {
+    var t = b.getAttribute('data-tab');
+    if (t === 'deposit') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+    else if (t === 'withdraw') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+    else if (t === 'utilize') { b.style.background = 'none'; b.style.color = 'var(--t2)'; }
+  });
+  if (tab === 'deposit') { btn.style.background = 'var(--bl2)'; btn.style.color = '#fff'; }
+  else if (tab === 'withdraw') { btn.style.background = 'var(--gr2)'; btn.style.color = '#000'; }
+  else if (tab === 'utilize') { btn.style.background = 'var(--am)'; btn.style.color = '#000'; }
+  var tabs = ['deposit','withdraw','utilize'];
+  tabs.forEach(function(t) {
+    var el = document.getElementById('entTab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+}
+function setDepType(type) {
+  var ud = document.getElementById('depTypeUsdc');
+  var cd = document.getElementById('depTypeCredits');
+  var uf = document.getElementById('dep-usdc-form');
+  var cf = document.getElementById('dep-credits-form');
+  if (ud) ud.style.borderColor = type === 'usdc' ? 'var(--bl)' : 'transparent';
+  if (cd) cd.style.borderColor = type === 'credits' ? 'var(--bl)' : 'transparent';
+  if (uf) uf.style.display = type === 'usdc' ? 'block' : 'none';
+  if (cf) cf.style.display = type === 'credits' ? 'block' : 'none';
+}
+function calcWdUsdc() {
+  var inp = document.getElementById('wdUsdcAmt');
+  var amt = inp ? (parseFloat(inp.value) || 0) : 0;
+  var net = document.getElementById('wdUsdcNet');
+  var rem = document.getElementById('wdUsdcRemain');
+  if (net) net.textContent = '$' + amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) + ' USDC';
+  if (rem) rem.textContent = '$' + Math.max(0, 284120 - amt).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function submitUtilize(btn) {
+  var prompt = document.getElementById('utilizePrompt');
+  if(!prompt || !prompt.value.trim()) { showToast('Enter a prompt first','green'); return; }
+  var orig = btn.textContent;
+  btn.textContent = 'Routing through encrypted layer…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = orig; btn.style.opacity = '';
+    var resp = document.getElementById('utilizeResponse');
+    var txt = document.getElementById('utilizeResponseText');
+    if(resp) resp.style.display = 'block';
+    if(txt) txt.textContent = 'This is a simulated response routed through the PROMPTEX encrypted engine. In production, your prompt is forwarded to the depositor\'s API key via an encrypted proxy — the key is never revealed to you or stored by PROMPTEX. You receive the model\'s response directly. Token cost is deducted from your portfolio balance.';
+  }, 1600);
+}
+function submitUsdcWithdraw(btn) {
+  var orig = btn.textContent;
+  btn.textContent = 'Connecting wallet…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = '✓ Withdrawal Initiated';
+    btn.style.background = 'var(--gr)'; btn.style.opacity = '';
+    showToast('USDC withdrawal sent to connected wallet', 'green');
+    setTimeout(function() { btn.textContent = orig; btn.style.background = 'var(--gr2)'; }, 2000);
+  }, 1200);
+}
+function submitEntDeposit(btn) {
+  var orig = btn.textContent;
+  btn.textContent = 'Authorizing…'; btn.style.opacity = '.6';
+  setTimeout(function() {
+    btn.textContent = '✓ Deposit Complete';
+    btn.style.background = 'var(--gr2)'; btn.style.color = '#000'; btn.style.opacity = '';
+    showToast('Deposit complete — tokens visible in org vault', 'green');
+    setTimeout(function() { btn.textContent = orig; btn.style.background = 'var(--bl2)'; btn.style.color = '#fff'; }, 2000);
+  }, 1200);
+}
+
+// ── MOBILE NAV ──
+function toggleMobileNav(){
+  var nav=document.getElementById('mobileNav');
+  nav.classList.toggle('open');
+}
+function closeMobileNav(){
+  document.getElementById('mobileNav').classList.remove('open');
+}
+
+// ── MOBILE TRADE MODAL ──
+var mSide='buy';
+var mDir='long';
+function openMobileTrade(action){
+  var modal=document.getElementById('mobileTradeModal');
+  modal.classList.add('open');
+  if(action==='swap'){
+    mtTab('swap', document.querySelectorAll('.mt-tab')[1]);
+  } else if(action==='sell'){
+    mtTab('spot', document.querySelectorAll('.mt-tab')[0]);
+    setMSide('sell');
+  } else {
+    mtTab('spot', document.querySelectorAll('.mt-tab')[0]);
+    setMSide('buy');
+  }
+}
+function closeMobileTrade(){
+  document.getElementById('mobileTradeModal').classList.remove('open');
+}
+function mtTab(tab, btn){
+  document.querySelectorAll('.mt-tab').forEach(function(b){b.classList.remove('act');});
+  btn.classList.add('act');
+  document.getElementById('mt-spot').style.display = tab==='spot'?'block':'none';
+  document.getElementById('mt-swap').style.display = tab==='swap'?'block':'none';
+  document.getElementById('mt-perp').style.display = tab==='perp'?'block':'none';
+}
+function setMSide(s){
+  mSide=s;
+  document.getElementById('mbuyBtn').className='bsb buy'+(s==='buy'?' act':'');
+  document.getElementById('msellBtn').className='bsb sell'+(s==='sell'?' act':'');
+  var btn=document.getElementById('mSpotBtn');
+  btn.className='sub-btn '+(s==='buy'?'sub-buy':'sub-sell');
+  btn.textContent=(s==='buy'?'Buy':'Sell')+' CLD';
+  updateMSum();
+}
+function setMPct(p){ document.getElementById('mAmt').value=Math.floor(50000*p/100); updateMSum(); }
+function updateMSum(){
+  var amt=parseFloat(document.getElementById('mAmt').value)||0;
+  document.getElementById('mTotal').textContent='$'+(amt*0.004218).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+' USDC';
+}
+function submitMSpot(){
+  var btn=document.getElementById('mSpotBtn');
+  var orig=btn.textContent;
+  btn.textContent='Signing…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Order Submitted';btn.style.opacity='';
+  setTimeout(function(){btn.textContent=orig;closeMobileTrade();},1200);},900);
+}
+function calcMSwap(){
+  var v=parseFloat(document.getElementById('mSwpFrom').value)||0;
+  document.getElementById('mSwpTo').textContent=Math.round(v*874.6).toLocaleString();
+}
+function setMDir(d){
+  mDir=d;
+  document.getElementById('mlongBtn').className='bsb buy'+(d==='long'?' act':'');
+  document.getElementById('mshortBtn').className='bsb sell'+(d==='short'?' act':'');
+  updMPerp();
+}
+function updMPerp(){
+  var lev=parseInt(document.getElementById('mLevSlider').value);
+  var col=parseFloat(document.getElementById('mPCol').value)||0;
+  document.getElementById('mLevVal').textContent=lev+'×';
+  document.getElementById('mPosSz').textContent='$'+(col*lev).toLocaleString();
+  var btn=document.getElementById('mPerpBtn');
+  btn.textContent=(mDir==='long'?'Open Long · ':'Open Short · ')+lev+'×';
+  btn.className='sub-btn '+(mDir==='long'?'sub-buy':'sub-sell');
+}
+function submitMPerp(btn){
+  var orig=btn.textContent;
+  btn.textContent='Opening…';btn.style.opacity='.6';
+  setTimeout(function(){btn.textContent='✓ Position Opened';btn.style.opacity='';
+  setTimeout(function(){btn.textContent=orig;closeMobileTrade();},1200);},900);
+}
+
+// close mobile nav when clicking outside
+document.addEventListener('click',function(e){
+  var nav=document.getElementById('mobileNav');
+  var ham=document.getElementById('hamburger');
+  if(nav&&nav.classList.contains('open')&&!nav.contains(e.target)&&!ham.contains(e.target)){
+    nav.classList.remove('open');
+  }
+  var netdd=document.getElementById('net-dd');
+  var pill=document.getElementById('chainPill');
+  if(netdd&&!netdd.contains(e.target)&&pill&&!pill.contains(e.target)){
+    netdd.classList.remove('open');
+  }
+});
+</script>
+</body>
+</html>
